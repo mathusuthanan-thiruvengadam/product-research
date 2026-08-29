@@ -100,6 +100,20 @@ Rules:
   OBSERVED and what part is INFERRED within the same entry rather than
   picking one tag for the whole thing.
 
+### Capability-level requirements
+
+For each documented `CAP-<NNN>` (per
+`references/product-capability-discovery.md`), the per-step FRs above are
+not sufficient by themselves — they describe the individual request/response
+pairs, not the loop. Write one additional FR that states the capability's
+overall interactive behavior as its own testable requirement, e.g. "the
+system shall let the user iteratively refine an initial free-text input via
+contextual suggestions, updating the live preview after each refinement,
+until the user reaches a satisfactory result." Cite the `CAP-<NNN>` in this
+FR's evidence alongside the usual sources. This keeps the capability visible
+in the Functional Requirements section instead of only existing as scattered
+single-step FRs that a reader would have to reassemble themselves.
+
 ## Non-functional requirements
 
 Only include an NFR when there is genuine observed evidence for it. Do not

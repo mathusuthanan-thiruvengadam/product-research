@@ -36,6 +36,35 @@ drop it.
       numbers) were checked, without probing infrastructure.
 - [ ] Notification affordances (in-app, email/push opt-ins) were noted.
 
+## Coverage — product capabilities
+
+Full technique lives in `references/product-capability-discovery.md`; this
+is the completeness gate before the report is called done.
+
+- [ ] Have all major user-facing capabilities been identified, not just
+      pages/screens/features?
+- [ ] Were capabilities identified beyond individual pages/UI elements —
+      ones that emerge from interaction between several elements?
+- [ ] Were interactive/iterative behaviors identified specifically (loops,
+      not just single request/response pairs)?
+- [ ] Were suggestion/recommendation mechanisms identified, wherever
+      present?
+- [ ] Were places where the product actively assists, guides, or interprets
+      (rather than just executing direct commands) identified?
+- [ ] Were behaviors that reduce user effort or cognitive load identified?
+- [ ] Were differentiating UX/product capabilities identified — the ones
+      that would make someone choose this product over a bare-bones
+      equivalent?
+- [ ] Does every documented capability have its own entry in the Key
+      Product Capabilities section (`templates/capability.md`), rather than
+      being described only as a page or UI element?
+- [ ] Is any important capability buried inside a generic feature or
+      use-case description instead of surfaced explicitly? (If yes, add the
+      explicit capability entry before finishing.)
+- [ ] Does each capability entry carry a confidence tier (Observed /
+      Inferred / Assumed / Unknown), with `Assumed` used sparingly and never
+      silently upgraded?
+
 ## Coverage — requirements synthesis
 
 - [ ] Every feature listed is grounded in at least one specific piece of
@@ -57,7 +86,8 @@ drop it.
 ## Evidence integrity
 
 - [ ] Every requirement, feature, journey, and edge case carries an
-      OBSERVED / INFERRED / UNKNOWN tag.
+      OBSERVED / INFERRED / UNKNOWN tag; every capability carries an
+      Observed / Inferred / Assumed / Unknown tag.
 - [ ] No item is tagged OBSERVED without a specific, checkable source
       (URL, screenshot reference, exact interaction).
 - [ ] No INFERRED item is phrased in a way that reads as if it were
@@ -84,8 +114,11 @@ drop it.
 
 ## Report structure integrity
 
-- [ ] All 19 sections from `SKILL.md`'s Output Structure are present, even
-      if some simply state "not observed" / "UNKNOWN."
+- [ ] All sections from `SKILL.md`'s Output Structure are present, in
+      order, including **Key Product Capabilities** immediately after the
+      Executive Summary — even if some sections simply state "not
+      observed" / "UNKNOWN," or, for capabilities, that none beyond direct
+      feature execution were found.
 - [ ] The Scope & Method section honestly states what tooling was used
       (browser automation vs. static fetching) and what that implies for
       evidence quality.

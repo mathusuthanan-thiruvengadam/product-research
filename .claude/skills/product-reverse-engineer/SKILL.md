@@ -52,6 +52,33 @@ Rules:
   its supporting evidence (URL, page name, element, screenshot reference, HTTP
   status/response shape, etc.) or explicitly state it has none.
 
+## Capability discovery discipline (core rule — non-negotiable)
+
+Do not summarize a product only by enumerating its pages, screens, menus,
+UI elements, and obvious features. Analyze how the product *behaves* during
+user interaction and identify the meaningful capabilities that emerge from
+that behavior. If the product actively assists, guides, interprets,
+recommends, refines, adapts, or provides iterative feedback to the user,
+treat that behavior as a first-class product capability and explicitly
+highlight it in the final report — never bury it inside a generic feature
+or use-case sentence.
+
+A **feature** is what functionality exists (a page, a button, an input). A
+**capability** is what meaningful ability the product gives the user through
+those features — often an interaction loop spanning several elements, with
+no dedicated page of its own (e.g. "Preview page, text input, suggestion
+buttons" is the feature-level view; "the product helps the user turn a vague
+instruction into a precise one through suggestions and iterative refinement"
+is the capability). Both altitudes are required in the report; the
+capability altitude is the one most easily missed, and this rule exists
+because missing it produces a report that is locally accurate but misses the
+product's actual point.
+
+**Load `references/product-capability-discovery.md` during Phase 2 and
+Phase 3** — it defines the full technique for finding, testing, and
+documenting capabilities, and the confidence tiers (Observed / Inferred /
+Assumed / Unknown) used for them specifically.
+
 ## Safety and ethics boundaries (hard constraints)
 
 - Only interact with **publicly accessible** surfaces of the target.
@@ -94,27 +121,55 @@ into this file or into conversation; apply it.
 ### Phase 2 — Explore the application
 Covers: public pages, navigation, page discovery, forms, buttons/actions,
 loading states, empty states, error states, authentication boundaries,
-settings, integrations, project lifecycle, deployment signals, notifications.
+settings, integrations, project lifecycle, deployment signals,
+notifications, and — running in parallel with all of the above, not as an
+afterthought — interactive/adaptive behavior (suggestions, guidance,
+refinement loops, and the other patterns named in
+`references/product-capability-discovery.md`).
 
 - **Load `references/exploration-methodology.md` before starting this phase,
   and keep consulting it during exploration** — it defines the technique and
   safety constraints for each item above.
+- **Also load `references/product-capability-discovery.md` before starting
+  this phase.** While walking pages, forms, and flows, keep asking not just
+  "what does this element do" but "does the product actively do something
+  *for* the user here, beyond executing a direct command?" Where a control
+  looks like it starts a suggestion/refinement/adaptive loop and it's safe
+  to do so, exercise it through at least two rounds — one round only proves
+  the control exists, not that the system adapts.
 - Log every finding with its evidence tag (OBSERVED / INFERRED / UNKNOWN) as
   you go, per `## Evidence discipline`.
 
-### Phase 3 — Analyze features and user journeys
+### Phase 3 — Analyze features, capabilities, and user journeys
 - Synthesize the raw findings from Phase 2 into a coherent **feature
   inventory** (distinct capabilities exposed to the visible user role(s)).
+- **Separately, synthesize a Key Product Capabilities layer** using
+  `templates/capability.md` — capabilities that emerge from *interaction
+  between* features and system behavior, not just the features themselves.
+  Run the capability-discovery checkpoint in
+  `references/product-capability-discovery.md` before moving to Phase 4; if
+  it surfaces something not yet documented, document it now rather than
+  carrying the gap forward silently.
 - Reconstruct end-to-end **user journeys** (e.g. signup → onboarding → first
-  core action) from the pages/flows actually walked in Phase 2.
+  core action) from the pages/flows actually walked in Phase 2. Where a
+  journey contains an iterative/refinement loop, represent the loop
+  explicitly (see `templates/user-journey.md`) rather than flattening it
+  into a single pass, and cross-reference the relevant `CAP-<NNN>`.
 - Continue applying `references/exploration-methodology.md`'s guidance on
-  feature discovery and user journeys for this analysis.
+  feature discovery and user journeys, and
+  `references/product-capability-discovery.md`'s guidance on capability
+  discovery, for this analysis.
 
 ### Phase 4 — Generate requirements
 - **Load `references/requirements-methodology.md` at the start of this
   phase.** It defines how to convert Phase 2/3 findings into features, user
   stories, functional requirements, non-functional requirements, acceptance
   criteria, and edge cases — all evidence-traceable.
+- For each documented capability (`CAP-<NNN>`), write at least one
+  functional requirement describing the capability's overall interactive
+  behavior, in addition to the granular per-step requirements — see
+  `references/requirements-methodology.md`'s guidance on capability-level
+  requirements.
 - Also suggest an **MVP candidate**: the smallest coherent subset of observed
   functionality that would deliver the product's apparent core value.
 
@@ -141,27 +196,43 @@ settings, integrations, project lifecycle, deployment signals, notifications.
 Structure the report content with these sections, in order:
 
 1. **Executive Summary** — what the product appears to be and who it's for (1 paragraph)
-2. **Scope & Method** — what was accessed, what tooling was used, what was explicitly out of scope
-3. **Site Map & Navigation**
-4. **Feature Inventory**
-5. **User Journeys**
-6. **Forms & Actions**
-7. **UI States** (loading / empty / error / other observed states)
-8. **Authentication Boundaries**
-9. **Integrations**
-10. **Settings**
-11. **Lifecycle (project/application)**
-12. **Observable Data Behavior**
-13. **Functional Requirements**
-14. **Non-Functional Requirements**
-15. **Edge Cases**
-16. **Open Questions**
-17. **MVP Candidate**
-18. **Gap Analysis**
-19. **Evidence Ledger** — appendix mapping each cited piece of evidence (URL, screenshot ref, timestamp) to where it's used in the report
+2. **Key Product Capabilities** — every documented `CAP-<NNN>` in full,
+   per `templates/capability.md`, placed immediately after the Executive
+   Summary so it cannot be missed or require assembling from later
+   sections. Not optional, and not satisfied by mentioning a capability in
+   passing elsewhere — see the anti-burial rule in
+   `references/product-capability-discovery.md`. If genuinely no capability
+   beyond direct feature execution was found, say so explicitly rather than
+   omitting the section.
+3. **Scope & Method** — what was accessed, what tooling was used, what was explicitly out of scope
+4. **Site Map & Navigation** — include which capability (`CAP-<NNN>`) each
+   part of the map exposes, per the navigation-mapping guidance in
+   `references/exploration-methodology.md`; use a Mermaid diagram where it
+   clarifies the structure better than prose or a table would
+5. **Feature Inventory** — note which capability each feature supports,
+   where applicable
+6. **User Journeys** — including iterative/refinement loops, represented
+   explicitly rather than flattened (see `templates/user-journey.md`)
+7. **Forms & Actions**
+8. **UI States** (loading / empty / error / other observed states)
+9. **Authentication Boundaries**
+10. **Integrations**
+11. **Settings**
+12. **Lifecycle (project/application)**
+13. **Observable Data Behavior**
+14. **Functional Requirements** — including capability-level requirements
+15. **Non-Functional Requirements**
+16. **Edge Cases**
+17. **Open Questions**
+18. **MVP Candidate**
+19. **Gap Analysis** — include the capability-discovery checkpoint results
+    (`references/product-capability-discovery.md`), not just evidence gaps
+20. **Evidence Ledger** — appendix mapping each cited piece of evidence (URL, screenshot ref, timestamp) to where it's used in the report
 
-Every item in sections 3–18 carries its evidence tag (OBSERVED / INFERRED /
-UNKNOWN) inline.
+Every item in sections 2 and 4–19 carries its evidence tag inline — OBSERVED
+/ INFERRED / UNKNOWN everywhere except Key Product Capabilities, which uses
+the four-tier Observed / Inferred / Assumed / Unknown scale defined in
+`references/product-capability-discovery.md`.
 
 ## Output formats
 

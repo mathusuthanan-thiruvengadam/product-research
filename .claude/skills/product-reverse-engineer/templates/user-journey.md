@@ -24,6 +24,30 @@ OBSERVED and partly INFERRED — tag each step, not just the journey as a whole)
 | 1 | <action> | <observed response> | <source> | OBSERVED / INFERRED / UNKNOWN |
 | 2 | ... | ... | ... | ... |
 
+If the actor and system trade turns more than once, with each round
+narrowing toward a result — e.g. the system suggests, the actor refines, the
+system updates its response, the actor refines again — do not flatten this
+into one row. Either repeat the relevant step numbers as separate rows per
+round (2a, 2b, 2c...) or add an explicit "Iteration / refinement loop"
+subsection below describing the loop and how many rounds were actually
+observed vs. assumed to continue similarly. This is very often where a real
+product capability lives — see `references/product-capability-discovery.md`
+— and if this journey demonstrates one, cross-reference its `CAP-<NNN>` here
+rather than leaving the loop implicit in the steps table.
+
+### Iteration / refinement loop (if applicable)
+
+- **Related capability:** CAP-<NNN> (if this journey demonstrates a
+  documented capability)
+- **What starts the loop:** <the actor's initial input>
+- **What the system offers each round:** <suggestions/guidance/feedback —
+  concrete, not paraphrased>
+- **How the actor responds each round:** <accept, edit, reject, refine>
+- **Rounds actually observed:** <n> — <what changed between them,
+  specifically>
+- **How the loop ends:** <actor satisfied, actor abandons, system reaches a
+  terminal state>
+
 ### Alternative paths
 
 <branches off the main path that were observed or inferred — e.g. "skip

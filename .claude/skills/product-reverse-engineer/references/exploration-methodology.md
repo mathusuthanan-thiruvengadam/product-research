@@ -41,9 +41,18 @@ requests by hand.
   (tabs, sub-menus), and footer navigation separately.
 - Reconstruct the navigation as a hierarchy or simple tree, not just a flat
   list — parent/child relationships matter for understanding information
-  architecture.
+  architecture. A Mermaid diagram (flowchart or graph) is often clearer than
+  a nested bullet list once the tree has more than a couple of branches —
+  use one in the final report where it earns its place.
 - Note navigation that changes based on context (e.g. a nav item that only
   appears on certain pages) and record the condition observed.
+- Once capabilities are identified (per
+  `references/product-capability-discovery.md`), extend the map to show
+  *where each capability is exposed*: which page/section contains it, which
+  UI elements participate, what interaction triggers it, and which
+  `CAP-<NNN>` it corresponds to. A capability with no dedicated page (the
+  common case — see that document's "Feature vs. capability") should still
+  be traceable to the page(s) where its interaction actually happens.
 
 ## Page discovery
 
@@ -67,6 +76,31 @@ Beyond following visible links, use available public discovery aids:
   feature they serve.
 - Note which features are visible-but-gated (e.g. shown to logged-out users
   but require sign-in to actually use) vs. fully usable without an account.
+- Feature discovery finds the building blocks. It is not the same pass as
+  **capability discovery** — see `references/product-capability-discovery.md`
+  for identifying the higher-level abilities (suggestion, guidance,
+  refinement loops, adaptive behavior) that emerge from combinations of
+  features and system behavior, often with no dedicated page of their own.
+  Run both passes; do not treat the feature list as complete coverage.
+
+## Interactive & adaptive behavior
+
+- While walking any flow (not just ones that look "smart"), watch for the
+  product doing something *for* the user beyond executing a direct command:
+  interpreting free text, offering suggestions, clarifying ambiguity,
+  pre-filling or defaulting a value, changing its next response based on
+  what the user just did, or narrowing toward a result across more than one
+  round trip.
+- If a control looks like it starts such a loop and it's safe to exercise
+  (see `SKILL.md`'s safety boundaries), walk it through at least two rounds
+  before concluding what it does — the first round only shows the control
+  exists, the second shows whether the system actually adapts.
+- Record what changed between rounds specifically (the exact suggestion
+  text, the exact preview change), not a paraphrase like "it gives helpful
+  suggestions" — vague descriptions here are what causes this kind of
+  capability to get lost during synthesis later.
+- Full technique, the pattern taxonomy to watch for, and how to document
+  what's found: `references/product-capability-discovery.md`.
 
 ## User journeys
 
@@ -78,6 +112,12 @@ Beyond following visible links, use available public discovery aids:
   logic as INFERRED.
 - Capture branch points (e.g. "skip onboarding" links, alternate sign-up
   methods) as separate paths, not just the happy path.
+- If a journey contains a loop — the user and system trade turns more than
+  once, each round narrowing toward a result (input → suggestion →
+  refinement → updated result → further refinement...) — capture the loop
+  explicitly rather than flattening it into a single "user does X, system
+  responds Y" step. This is very often where a real product capability
+  lives; see `references/product-capability-discovery.md`.
 
 ## Forms
 
