@@ -552,5 +552,39 @@ Everything else observed — analytics, AI-usage accounting, security scanning, 
 | E29 | SEO subview, "Ask Lovable to edit details" wizard exercised live with explicit user authorization 2026-08-29 pass 3 — submitted answers, resulting build trace, change report, and updated "How your site appears" preview | §2, §13, §14, §17 |
 | E30 | Preview toolbar "Select elements" / "Edit text inline" modes, four live interaction attempts with explicit user authorization 2026-08-29 pass 3, inconclusive | §2, §17 |
 
+## 21. Hypothetical Backend Requirements (Speculative — Not Observed)
+
+**This section departs from the report's evidence discipline by design.** Everything in Sections 14–16 is tied to an evidence tier because it describes what was witnessed through the product's own UI; nothing about the server side was inspected in this investigation (no implementation code, infrastructure, or backend APIs were accessed — see Section 3, Scope & Method). The items below are a solution architect's engineering inferences about backend systems that would plausibly need to exist to produce the *frontend* behavior actually observed. They are added at the user's request to make the shape of the likely backend explicit. None of them carry an evidence tier, none should be treated as verified, and none should be cited alongside the Observed/Inferred/Assumed/Unknown requirements in Sections 14–16 as if they had the same standing. Each item states its statement, then the specific observed behavior it's inferred from.
+
+HBR-1: The system likely runs a stateful, multi-step LLM agent loop per build step — one that plans, selects a tool (write a file, install a package, provision a backend, trigger a build), executes it, and observes the result before continuing — rather than a single prompt-to-code call.
+Inferred from: the visible "Thought for Ns" reasoning disclosure, the plan → consent → build → report sequence (CAP-001), and clean mid-step interruption (CAP-006), all of which imply pauseable, observable steps rather than one opaque generation call.
+
+HBR-2: Each project likely runs in an isolated, disposable compute environment (a container or micro-VM) that installs dependencies, runs a build/dev server, and serves the live preview.
+Inferred from: the preview being served from a dedicated per-project subdomain (`id-preview--<uuid>.lovable.app`) distinct from the published app, and build pass/fail being reported synchronously after each change.
+
+HBR-3: Generated code is likely committed to a per-project git repository, with the agent producing diffs applied as commits, and checkpoints in the History panel corresponding to commit references.
+Inferred from: the workspace's branch selector reading "main," a timestamped checkpoint history, and change reports naming exact files touched (`__root.tsx`, `index.tsx`, `product.$handle.tsx`) — behavior consistent with programmatic git operations, not opaque state snapshots.
+
+HBR-4: Build compilation, security scans (~10–15s on publish, ~3min for a Deep scan), and third-party provisioning (e.g., Shopify store creation) likely run as queued background jobs with status polling or streaming back to the chat UI, rather than blocking a single request.
+Inferred from: these operations' observed variable durations and asynchronous progress states (e.g., "Scanning your project... Usually under a minute").
+
+HBR-5: A per-account, per-project credit ledger likely debits usage at the point each billable action completes, supporting the two independently tracked pools observed (a banked/expiring grant and a daily-resetting allowance).
+Inferred from: a single SEO edit debiting exactly 0.80 credits, visible in near real time, and per-project 30-day usage attributed with two-decimal precision — implying fine-grained, action-level cost accounting rather than flat per-request billing.
+
+HBR-6: A backend service likely brokers OAuth or partner-API credentials to provision and manage Shopify stores and Supabase projects on the user's behalf, storing scoped tokens per project rather than performing these calls client-side.
+Inferred from: Shopify stores being auto-created and later transferable via "Claim store," and Supabase projects being either auto-provisioned or connected by the user — both requiring server-side integration with those platforms' account/resource-creation APIs.
+
+HBR-7: The agent likely maintains a searchable index (semantic or structural) of each project's current file tree, so it can locate and modify the right files without re-reading the whole codebase on every turn.
+Inferred from: the SEO edit's change report naming three specific files it updated by function (root layout, homepage, product page) — consistent with an agent that can query "where is site metadata defined" rather than one working from a fixed, hardcoded file list.
+
+HBR-8: Security scanning likely calls out to, or maintains a synced copy of, a package-vulnerability database (an OSV/NVD-style feed) to produce findings like "53 packages • 1 known issue," plus a rules engine capable of proposing safe version bumps for the claimed auto-fix behavior (CAP-005).
+Inferred from: the specificity and immediacy of the vulnerability count, and the public claim that non-breaking findings can be auto-fixed.
+
+HBR-9: Beyond git commits (HBR-3), a separate metadata store likely records each checkpoint's label, timestamp, and any associated integration side-effects (e.g., "Enabled Shopify") shown in the Details/Timeline view.
+Inferred from: the Timeline view surfacing structured domain events (consent decisions, named checkpoints) that read as first-class records, not just a derived git log.
+
+HBR-10: Access to projects and settings is likely enforced by a workspace-scoped authorization/role system, distinct from account-level authentication, governing per-collaborator project roles ("Can edit"), workspace admin actions, and plan-gated feature visibility.
+Inferred from: plan-gated settings panels rendering as visible-but-locked rather than hidden, and per-collaborator "Can edit" roles alongside a workspace Owner role — implying authorization is evaluated per resource, not just per logged-in user.
+
 ---
 *Report generated by the `product-reverse-engineer` skill. Scope, safety boundaries, and evidence discipline as defined in `SKILL.md`. Updated 2026-08-29 (pass 1) to apply the skill's capability-discovery methodology (Section 2 and related cross-references) via re-synthesis of existing evidence, no new browsing. Updated 2026-08-29 (pass 2) with live browser re-verification of CAP-001, adding CAP-006 and CAP-007 — no new prompts submitted, no credits spent. Updated 2026-08-29 (pass 3), with the user's explicit authorization, by actively testing CAP-002 (inconclusive) and CAP-003 (confirmed — one real, disclosed edit made to the live project, 0.80 credits spent).*
