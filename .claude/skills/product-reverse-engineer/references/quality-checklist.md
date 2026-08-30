@@ -10,6 +10,13 @@ drop it.
 - [ ] Public pages were enumerated, not just the entry page.
 - [ ] Navigation (primary, secondary, footer) was mapped as a structure, not
       a flat list.
+- [ ] The final navigation map covers every reachable page/panel/subview
+      found during exploration — not only the primary/happy-path journey —
+      per `references/exploration-methodology.md`'s completeness guidance.
+- [ ] If the navigation map's nodes carry real per-screen content and
+      labeled action-triggers (not just route names), it was hand-authored
+      as inline SVG per the `artifact-diagramming` skill rather than forced
+      into a Mermaid flowchart that can't legibly carry that much detail.
 - [ ] Page discovery aids (robots.txt, sitemap.xml, footer links) were
       checked where available.
 - [ ] Features were identified and grouped meaningfully (not one feature per
@@ -111,6 +118,20 @@ is the completeness gate before the report is called done.
 - [ ] The report stays within scope: it documents observed functionality
       and requirements — it does not include cloned code, copied design
       assets, or a build/implementation plan for replicating the product.
+
+## Hypothetical Backend Requirements (only if present)
+
+- [ ] This section exists only because the user explicitly asked for
+      speculative backend requirements — it was not added by default.
+- [ ] It opens with an explicit disclaimer that it departs from the report's
+      evidence discipline by design.
+- [ ] Every HBR item has an "Inferred from" line tying it to a specific
+      observed frontend behavior — none are free invention.
+- [ ] Items are labeled distinctly (e.g. "Speculative") and never tagged
+      OBSERVED / INFERRED / UNKNOWN or Observed / Inferred / Assumed /
+      Unknown.
+- [ ] The section is visually/structurally separated from sections 2 and
+      4–19 so it can't be mistaken for a tiered finding.
 
 ## Report structure integrity
 

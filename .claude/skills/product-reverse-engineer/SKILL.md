@@ -52,6 +52,13 @@ Rules:
   its supporting evidence (URL, page name, element, screenshot reference, HTTP
   status/response shape, etc.) or explicitly state it has none.
 
+The one deliberate exception is the optional **Hypothetical Backend
+Requirements** section (see `## Output structure`, item 21) — produced only
+when the user explicitly asks for speculative backend requirements, kept
+visually and textually separate from everything else, and never tagged with
+these tiers (see `references/requirements-methodology.md` for its own
+labeling convention).
+
 ## Capability discovery discipline (core rule — non-negotiable)
 
 Do not summarize a product only by enumerating its pages, screens, menus,
@@ -172,6 +179,12 @@ refinement loops, and the other patterns named in
   requirements.
 - Also suggest an **MVP candidate**: the smallest coherent subset of observed
   functionality that would deliver the product's apparent core value.
+- **Only if the user explicitly asks for speculative/hypothetical backend
+  requirements**, add them per `references/requirements-methodology.md`'s
+  Hypothetical Backend Requirements guidance (item 21 in `## Output
+  structure`). Never add this section unprompted, and never let it read as
+  if it carries the same evidentiary standing as the rest of Phase 4's
+  output.
 
 ### Phase 5 — Perform gap analysis and quality review
 - **Load `references/quality-checklist.md` at the start of this phase** and
@@ -205,10 +218,13 @@ Structure the report content with these sections, in order:
    beyond direct feature execution was found, say so explicitly rather than
    omitting the section.
 3. **Scope & Method** — what was accessed, what tooling was used, what was explicitly out of scope
-4. **Site Map & Navigation** — include which capability (`CAP-<NNN>`) each
-   part of the map exposes, per the navigation-mapping guidance in
-   `references/exploration-methodology.md`; use a Mermaid diagram where it
-   clarifies the structure better than prose or a table would
+4. **Site Map & Navigation** — cover every reachable page, panel, and subview
+   found during exploration, not only the primary/happy-path journey; include
+   which capability (`CAP-<NNN>`) each part of the map exposes; per
+   `references/exploration-methodology.md`'s navigation-map completeness and
+   node-style guidance, use a Mermaid diagram for purely structural maps and
+   a hand-authored inline SVG (per the `artifact-diagramming` skill) once
+   nodes need to carry real per-screen content and labeled action-triggers
 5. **Feature Inventory** — note which capability each feature supports,
    where applicable
 6. **User Journeys** — including iterative/refinement loops, represented
@@ -228,11 +244,22 @@ Structure the report content with these sections, in order:
 19. **Gap Analysis** — include the capability-discovery checkpoint results
     (`references/product-capability-discovery.md`), not just evidence gaps
 20. **Evidence Ledger** — appendix mapping each cited piece of evidence (URL, screenshot ref, timestamp) to where it's used in the report
+21. **Hypothetical Backend Requirements** (optional — include only when the
+    user explicitly asks for speculative backend requirements; omit entirely
+    otherwise) — a solution architect's inferences about backend systems
+    plausibly needed to produce the observed frontend behavior. Per
+    `references/requirements-methodology.md`, open this section with an
+    explicit disclaimer that it departs from the report's evidence
+    discipline by design, label each item distinctly (e.g. "Speculative" —
+    never OBSERVED/INFERRED/UNKNOWN), and keep it visually and structurally
+    separate from sections 2 and 4–19 so a reader can never mistake a
+    hypothesis for a tiered finding.
 
 Every item in sections 2 and 4–19 carries its evidence tag inline — OBSERVED
 / INFERRED / UNKNOWN everywhere except Key Product Capabilities, which uses
 the four-tier Observed / Inferred / Assumed / Unknown scale defined in
-`references/product-capability-discovery.md`.
+`references/product-capability-discovery.md`. Section 21, when present, uses
+neither scale — see above.
 
 ## Output formats
 

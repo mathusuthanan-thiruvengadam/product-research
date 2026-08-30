@@ -184,6 +184,48 @@ observed hint of multi-user/real-time behavior).
 
 ---
 
+## Hypothetical backend requirements (optional, user-requested only)
+
+Everything above this point exists to keep synthesis tied to evidence. This
+section is the one deliberate, bounded exception — and it is **opt-in only**:
+produce it if and only if the user explicitly asks for speculative/
+hypothetical backend requirements. Never add it by default, never fold it
+into Functional or Non-Functional Requirements, and never let it read as if
+it carries the same standing as the rest of this document's output.
+
+What it is: a solution architect's engineering inferences about backend
+systems that would plausibly need to exist to produce the *frontend*
+behavior actually observed — since no implementation code, infrastructure,
+or backend API is ever inspected in this methodology (see `SKILL.md`'s
+safety boundaries), nothing about the backend can ever be OBSERVED or
+INFERRED in the normal sense.
+
+Format:
+```
+HBR-<n>: <the system likely implements/runs/maintains...>
+Inferred from: <the specific observed frontend behavior that motivates this>
+```
+
+Rules:
+- Open the section with an explicit banner stating that it departs from the
+  report's evidence discipline by design, and that it should never be cited
+  alongside OBSERVED/INFERRED requirements as if it carried equal standing.
+- Every HBR must still connect to *something* actually observed — the
+  "Inferred from" line is mandatory. This is architectural inference from
+  evidence (e.g. a per-project preview subdomain implies *some* per-project
+  runtime environment), not free invention (e.g. don't guess a specific
+  cloud vendor, database engine, or programming language unless the product
+  itself discloses it). If an idea can't be tied to any observed behavior at
+  all, leave it out rather than including it for completeness.
+- Label each item distinctly from the standard scale — e.g. a single
+  "Speculative" tag — so it can never be confused with OBSERVED, INFERRED,
+  ASSUMED, or UNKNOWN.
+- Keep the tone hedged ("likely," "plausibly") throughout; this section
+  documents a reasonable architecture guess, not a claim about what's
+  actually running.
+
+---
+
 ## Final self-check before finalizing any requirement
 
 - Can I point to the exact evidence for this? If not, is it correctly

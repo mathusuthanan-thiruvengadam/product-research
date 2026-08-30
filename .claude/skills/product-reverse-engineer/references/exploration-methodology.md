@@ -54,6 +54,43 @@ requests by hand.
   common case — see that document's "Feature vs. capability") should still
   be traceable to the page(s) where its interaction actually happens.
 
+### Navigation map completeness and node style
+
+- **The final navigation map must cover every reachable page, panel, and
+  subview found during exploration — not only the primary/happy-path
+  journey.** If a marketing sub-page, a settings panel, a workspace subview,
+  or a gated/not-opened item was found and recorded anywhere in the report,
+  it must appear in the map too, even if only as a compact grouped listing
+  of its child routes (see below). Don't quietly drop branches because they
+  seem minor — a reader relying on the map alone should be able to see the
+  product's full reachable surface, not just the one flow that was walked
+  deepest.
+- **Prefer a node style that shows what a screen actually contains over one
+  that only names its route.** A box labeled `/dashboard` says far less than
+  a box listing the real, observed content of that screen (key sections,
+  controls, sidebar items). Reserve the plain-route-name style for nodes
+  whose own screen content wasn't individually observed (e.g. a page found
+  only via a footer link list) — group several such nodes together rather
+  than inventing screen content for them.
+- **Label every transition arrow with the exact action that causes it**
+  (e.g. "Continue with Google clicked," "Allow clicked on consent card"),
+  not a generic "navigates to." Thin, unlabeled connectors are acceptable
+  only for pure structural containment (a settings hub fanning out to its
+  own panels) where the parent/child layout already makes the relationship
+  obvious — reserve labels for connectors that represent a real triggered
+  action.
+- **Choose the rendering technique by how much each node needs to carry.** A
+  Mermaid flowchart is enough when the map is purely structural (route names
+  and containment only — e.g. the capability-exposure summary). Once nodes
+  need to show real per-screen content and labeled action-triggers, Mermaid's
+  node labels can't carry that much annotated detail legibly — hand-author
+  the diagram as inline SVG instead, following the `artifact-diagramming`
+  skill's mechanics (viewBox sizing, `currentColor`/token-based theming,
+  marker arrowheads, grid-aligned layout). For a map large enough to need
+  this treatment, it's normal for it to become the report's largest single
+  figure — that's a sign of real coverage, not a reason to trim it back down
+  to the primary path.
+
 ## Page discovery
 
 Beyond following visible links, use available public discovery aids:
