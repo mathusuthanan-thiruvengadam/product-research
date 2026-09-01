@@ -204,6 +204,426 @@ flowchart LR
 - **CAP-004 (Contextual Cross-Project Work Reuse):** the `@`-reference picker inside the same chat input as CAP-001.
 - **CAP-005 (Automated Security Remediation on Publish):** `/projects/:id?view=more&subview=security`, triggered implicitly by the (not-exercised) Publish action.
 
+### 4.4 Complete Navigation Map (100% Route Coverage)
+
+Every route named anywhere in this report — on-page nav, both mega-menus, all four footer columns, every `robots.txt`-disclosed route with no on-page link, every project-workspace subview, and every Settings nav item — split into 10 focused diagrams rather than one unreadable graph. Each box states the route and what it's for; each arrow states the exact action that crosses it. Dashed grey ovals are UI affordances — a menu, a switcher, the footer — not routes of their own.
+
+Node color: blue marketing · green authenticated app · tan project workspace · violet settings · amber dashed external subdomain / robots.txt-only · grey dashed existence-only/unknown · red the 404 catch-all.
+
+**Fig. 4.4.0 — Entry, top-level nav & the 404 catch-all.** Where every session begins, before any menu or workspace is involved.
+
+```mermaid
+%%{init: {"flowchart":{"htmlLabels":false,"curve":"basis"},"theme":"base","themeVariables":{"background":"#ffffff","primaryColor":"#eef1fb","primaryBorderColor":"#3348c9","primaryTextColor":"#171b2e","lineColor":"#5b6472","secondaryColor":"#fbeecf","tertiaryColor":"#ffffff","fontFamily":"IBM Plex Mono, monospace","fontSize":"13px"}}}%%
+flowchart LR
+  root["/ bare domain — redirect only"]
+  home["/home — marketing homepage: prompt box + persona nav"]
+  dashboard["/dashboard — authed home: prompt entry"]
+  pricing["/pricing — plan comparison, credits"]
+  security["/security — SOC2/GDPR, SSO, scan FAQ"]
+  community["/community — community hub"]
+  enterpriseLanding["/enterprise-landing — Enterprise pitch"]
+  authPage["/auth — login/signup (assumed by name)"]
+  manualEntry(["User types an unrecognized URL"])
+  notFound["Any unknown path — clean 404 + Go home"]
+  root -->|"already authenticated"| dashboard
+  root -.->|"logged out, assumed same as /home"| home
+  home -->|"click Open Lovable CTA (authed)"| dashboard
+  home -.->|"click Sign up / Log in, assumed"| authPage
+  home -->|"click Pricing"| pricing
+  home -->|"click Security"| security
+  home -->|"click Community"| community
+  home -->|"click Enterprise"| enterpriseLanding
+  manualEntry -->|"navigate directly"| notFound
+  notFound -->|"click Go home"| home
+  class root marketing;
+  class home marketing;
+  class dashboard authed;
+  class pricing marketing;
+  class security marketing;
+  class community marketing;
+  class enterpriseLanding marketing;
+  class authPage robots;
+  class manualEntry hub;
+  class notFound error;
+  classDef marketing fill:#eef1fb,stroke:#3348c9,color:#171b2e;
+  classDef authed fill:#e3f5ec,stroke:#157a54,color:#171b2e;
+  classDef robots fill:#fbebcf,stroke:#a16a00,color:#171b2e,stroke-dasharray: 4 2;
+  classDef hub fill:#f2f2f2,stroke:#888888,color:#333333,stroke-dasharray: 2 2;
+  classDef error fill:#fbe3e6,stroke:#b23a48,color:#171b2e;
+```
+
+**Fig. 4.4.1 — Solutions mega-menu — 11 persona pages.** Hovering 'Solutions' in the top nav opens this menu; every item is its own marketing page.
+
+```mermaid
+%%{init: {"flowchart":{"htmlLabels":false,"curve":"basis"},"theme":"base","themeVariables":{"background":"#ffffff","primaryColor":"#eef1fb","primaryBorderColor":"#3348c9","primaryTextColor":"#171b2e","lineColor":"#5b6472","secondaryColor":"#fbeecf","tertiaryColor":"#ffffff","fontFamily":"IBM Plex Mono, monospace","fontSize":"13px"}}}%%
+flowchart TB
+  home["/home — marketing homepage: prompt box + persona nav"]
+  solutionsMenu(["Solutions mega-menu (not a page)"])
+  forWork["/for-work — overview for teams"]
+  founders["/founders — Founder persona"]
+  productManagers["/product-managers — PM persona"]
+  designers["/designers — Designer persona"]
+  marketers["/marketers — Marketer persona"]
+  sales["/sales — Sales persona"]
+  ops["/ops — Ops persona"]
+  people["/people — People/HR persona"]
+  useCasesWebsites["/use-cases/websites — Websites use-case"]
+  prototypes["/prototypes — Prototyping use-case"]
+  tools["/tools — Internal-tools use-case"]
+  home -->|"hover Solutions"| solutionsMenu
+  solutionsMenu -->|"click"| forWork
+  solutionsMenu -->|"click"| founders
+  solutionsMenu -->|"click"| productManagers
+  solutionsMenu -->|"click"| designers
+  solutionsMenu -->|"click"| marketers
+  solutionsMenu -->|"click"| sales
+  solutionsMenu -->|"click"| ops
+  solutionsMenu -->|"click"| people
+  solutionsMenu -->|"click"| useCasesWebsites
+  solutionsMenu -->|"click"| prototypes
+  solutionsMenu -->|"click"| tools
+  class home marketing;
+  class solutionsMenu hub;
+  class forWork marketing;
+  class founders marketing;
+  class productManagers marketing;
+  class designers marketing;
+  class marketers marketing;
+  class sales marketing;
+  class ops marketing;
+  class people marketing;
+  class useCasesWebsites marketing;
+  class prototypes marketing;
+  class tools marketing;
+  classDef marketing fill:#eef1fb,stroke:#3348c9,color:#171b2e;
+  classDef hub fill:#f2f2f2,stroke:#888888,color:#333333,stroke-dasharray: 2 2;
+```
+
+**Fig. 4.4.2 — Resources mega-menu — 9 items.** Hovering 'Resources' opens this menu; two items (academy, docs) are separate subdomains.
+
+```mermaid
+%%{init: {"flowchart":{"htmlLabels":false,"curve":"basis"},"theme":"base","themeVariables":{"background":"#ffffff","primaryColor":"#eef1fb","primaryBorderColor":"#3348c9","primaryTextColor":"#171b2e","lineColor":"#5b6472","secondaryColor":"#fbeecf","tertiaryColor":"#ffffff","fontFamily":"IBM Plex Mono, monospace","fontSize":"13px"}}}%%
+flowchart TB
+  home["/home — marketing homepage: prompt box + persona nav"]
+  resourcesMenu(["Resources mega-menu (not a page)"])
+  blog["/blog — articles index"]
+  partners["/partners — become a partner"]
+  templates["/templates — 204 templates, gallery"]
+  guides["/guides — how-to guides"]
+  connect["/connect — connectors marketing page"]
+  customers["/customers — customer stories"]
+  blogSeriesC["/blog/series-c — funding post"]
+  academy["academy.lovable.app — learning platform"]
+  docsHome["docs.lovable.dev — documentation"]
+  home -->|"hover Resources"| resourcesMenu
+  resourcesMenu -->|"click"| blog
+  resourcesMenu -->|"click"| partners
+  resourcesMenu -->|"click"| templates
+  resourcesMenu -->|"click"| guides
+  resourcesMenu -->|"click"| connect
+  resourcesMenu -->|"click"| customers
+  resourcesMenu -->|"click"| blogSeriesC
+  resourcesMenu -->|"click, external"| academy
+  resourcesMenu -->|"click, external"| docsHome
+  class home marketing;
+  class resourcesMenu hub;
+  class blog marketing;
+  class partners marketing;
+  class templates marketing;
+  class guides marketing;
+  class connect marketing;
+  class customers marketing;
+  class blogSeriesC marketing;
+  class academy external;
+  class docsHome external;
+  classDef marketing fill:#eef1fb,stroke:#3348c9,color:#171b2e;
+  classDef hub fill:#f2f2f2,stroke:#888888,color:#333333,stroke-dasharray: 2 2;
+  classDef external fill:#fdf3e0,stroke:#a16a00,color:#171b2e,stroke-dasharray: 2 2;
+```
+
+**Fig. 4.4.3 — Footer — Company & Resources columns.** The footer renders on every marketing page. Company links (some duplicate pages already shown above); Resources column adds the docs/status subdomains.
+
+```mermaid
+%%{init: {"flowchart":{"htmlLabels":false,"curve":"basis"},"theme":"base","themeVariables":{"background":"#ffffff","primaryColor":"#eef1fb","primaryBorderColor":"#3348c9","primaryTextColor":"#171b2e","lineColor":"#5b6472","secondaryColor":"#fbeecf","tertiaryColor":"#ffffff","fontFamily":"IBM Plex Mono, monospace","fontSize":"13px"}}}%%
+flowchart TB
+  footer(["Footer (every marketing page, not a page itself)"])
+  careers["/careers — job listings"]
+  brand["/brand — press & media kit"]
+  trust["trust.lovable.dev — Trust center"]
+  students["/students — student discount"]
+  enterpriseLanding["/enterprise-landing — Enterprise pitch"]
+  security["/security — SOC2/GDPR, SSO, scan FAQ"]
+  partners["/partners — become a partner"]
+  pricing["/pricing — plan comparison, credits"]
+  download["/download — desktop app download"]
+  docsIntegrations["docs.lovable.dev/integrations/introduction"]
+  docsChangelog["docs.lovable.dev/changelog"]
+  status["status.lovable.dev — uptime status"]
+  docsWelcome["docs.lovable.dev/introduction/welcome — learn"]
+  mcpPage["/mcp — MCP server marketing page"]
+  videos["/videos — video library"]
+  blog["/blog — articles index"]
+  support["/support — support / help center"]
+  reviews["/reviews — testimonials"]
+  sitemapPage["/sitemap — HTML sitemap page"]
+  templates["/templates — 204 templates, gallery"]
+  guides["/guides — how-to guides"]
+  connect["/connect — connectors marketing page"]
+  footer -->|"click"| careers
+  footer -->|"click"| brand
+  footer -->|"click, external"| trust
+  footer -->|"click"| students
+  footer -->|"click"| enterpriseLanding
+  footer -->|"click"| security
+  footer -->|"click"| partners
+  footer -->|"click"| pricing
+  footer -->|"click"| download
+  footer -->|"click, external"| docsIntegrations
+  footer -->|"click, external"| docsChangelog
+  footer -->|"click, external"| status
+  footer -->|"click, external"| docsWelcome
+  footer -->|"click"| mcpPage
+  footer -->|"click"| videos
+  footer -->|"click"| blog
+  footer -->|"click"| support
+  footer -->|"click"| reviews
+  footer -->|"click"| sitemapPage
+  footer -->|"click"| templates
+  footer -->|"click"| guides
+  footer -->|"click"| connect
+  class footer hub;
+  class careers marketing;
+  class brand marketing;
+  class trust external;
+  class students marketing;
+  class enterpriseLanding marketing;
+  class security marketing;
+  class partners marketing;
+  class pricing marketing;
+  class download marketing;
+  class docsIntegrations external;
+  class docsChangelog external;
+  class status external;
+  class docsWelcome external;
+  class mcpPage marketing;
+  class videos marketing;
+  class blog marketing;
+  class support marketing;
+  class reviews marketing;
+  class sitemapPage marketing;
+  class templates marketing;
+  class guides marketing;
+  class connect marketing;
+  classDef hub fill:#f2f2f2,stroke:#888888,color:#333333,stroke-dasharray: 2 2;
+  classDef marketing fill:#eef1fb,stroke:#3348c9,color:#171b2e;
+  classDef external fill:#fdf3e0,stroke:#a16a00,color:#171b2e,stroke-dasharray: 2 2;
+```
+
+**Fig. 4.4.4 — Footer — Legal column (13 pages).** Every legal/compliance page linked from the footer.
+
+```mermaid
+%%{init: {"flowchart":{"htmlLabels":false,"curve":"basis"},"theme":"base","themeVariables":{"background":"#ffffff","primaryColor":"#eef1fb","primaryBorderColor":"#3348c9","primaryTextColor":"#171b2e","lineColor":"#5b6472","secondaryColor":"#fbeecf","tertiaryColor":"#ffffff","fontFamily":"IBM Plex Mono, monospace","fontSize":"13px"}}}%%
+flowchart TB
+  footer(["Footer (every marketing page, not a page itself)"])
+  privacy["/privacy — privacy policy"]
+  dnsmpi["/do-not-sell-or-share-my-personal-information"]
+  cookiePolicy["/cookie-policy"]
+  legalEnterprise["lovable.dev/legal — Enterprise terms"]
+  terms["/terms — general terms"]
+  desktopTerms["/desktop-app-terms"]
+  domainTerms["/domain-registration-terms"]
+  dmca["/dmca"]
+  accessibility["/accessibility"]
+  rules["rules.lovable.dev — platform rules"]
+  abuse["/abuse — report abuse"]
+  securityIssues["/security-issues — report security concerns"]
+  dpa["/data-processing-agreement"]
+  footer -->|"click"| privacy
+  footer -->|"click"| dnsmpi
+  footer -->|"click"| cookiePolicy
+  footer -->|"click"| legalEnterprise
+  footer -->|"click"| terms
+  footer -->|"click"| desktopTerms
+  footer -->|"click"| domainTerms
+  footer -->|"click"| dmca
+  footer -->|"click"| accessibility
+  footer -->|"click"| securityIssues
+  footer -->|"click"| dpa
+  footer -->|"click"| abuse
+  footer -->|"click, external"| rules
+  class footer hub;
+  class privacy marketing;
+  class dnsmpi marketing;
+  class cookiePolicy marketing;
+  class legalEnterprise marketing;
+  class terms marketing;
+  class desktopTerms marketing;
+  class domainTerms marketing;
+  class dmca marketing;
+  class accessibility marketing;
+  class rules external;
+  class abuse marketing;
+  class securityIssues marketing;
+  class dpa marketing;
+  classDef hub fill:#f2f2f2,stroke:#888888,color:#333333,stroke-dasharray: 2 2;
+  classDef marketing fill:#eef1fb,stroke:#3348c9,color:#171b2e;
+  classDef external fill:#fdf3e0,stroke:#a16a00,color:#171b2e,stroke-dasharray: 2 2;
+```
+
+**Fig. 4.4.5 — Footer — Partner/community column.** Partner program and community-facing links.
+
+```mermaid
+%%{init: {"flowchart":{"htmlLabels":false,"curve":"basis"},"theme":"base","themeVariables":{"background":"#ffffff","primaryColor":"#eef1fb","primaryBorderColor":"#3348c9","primaryTextColor":"#171b2e","lineColor":"#5b6472","secondaryColor":"#fbeecf","tertiaryColor":"#ffffff","fontFamily":"IBM Plex Mono, monospace","fontSize":"13px"}}}%%
+flowchart LR
+  footer(["Footer (every marketing page, not a page itself)"])
+  partners["/partners — become a partner"]
+  experts["/experts — hire a Lovable expert"]
+  affiliates["/partners/affiliates"]
+  codeOfConduct["/community-code-of-conduct"]
+  social["Discord/Reddit/X/YouTube/LinkedIn — social links"]
+  footer -->|"click"| partners
+  footer -->|"click"| experts
+  footer -->|"click"| affiliates
+  footer -->|"click"| codeOfConduct
+  footer -->|"click, external"| social
+  class footer hub;
+  class partners marketing;
+  class experts marketing;
+  class affiliates marketing;
+  class codeOfConduct marketing;
+  class social external;
+  classDef hub fill:#f2f2f2,stroke:#888888,color:#333333,stroke-dasharray: 2 2;
+  classDef marketing fill:#eef1fb,stroke:#3348c9,color:#171b2e;
+  classDef external fill:#fdf3e0,stroke:#a16a00,color:#171b2e,stroke-dasharray: 2 2;
+```
+
+**Fig. 4.4.6 — robots.txt-only routes.** Four routes with no on-page link anywhere — only reachable by knowing the URL, and disclosed solely by the crawl directives file. /@handle also has a real in-app entry point, shown for context.
+
+```mermaid
+%%{init: {"flowchart":{"htmlLabels":false,"curve":"basis"},"theme":"base","themeVariables":{"background":"#ffffff","primaryColor":"#eef1fb","primaryBorderColor":"#3348c9","primaryTextColor":"#171b2e","lineColor":"#5b6472","secondaryColor":"#fbeecf","tertiaryColor":"#ffffff","fontFamily":"IBM Plex Mono, monospace","fontSize":"13px"}}}%%
+flowchart LR
+  robotsTxt["robots.txt — discloses routes with no on-page link"]
+  authPage["/auth — login/signup (assumed by name)"]
+  profileHandle["/@handle — public user profile page"]
+  desktopQuickChat["/desktop-quick-chat — quick-entry surface"]
+  landingPages["/landing + /landing/* — campaign landing pages"]
+  settingsAccount["/settings/account — profile, AI opt-out, 2FA"]
+  robotsTxt -.->|"discloses"| authPage
+  robotsTxt -.->|"discloses"| profileHandle
+  robotsTxt -.->|"discloses"| desktopQuickChat
+  robotsTxt -.->|"discloses"| landingPages
+  settingsAccount -->|"click Open profile"| profileHandle
+  class robotsTxt robots;
+  class authPage robots;
+  class profileHandle robots;
+  class desktopQuickChat robots;
+  class landingPages robots;
+  class settingsAccount settings;
+  classDef robots fill:#fbebcf,stroke:#a16a00,color:#171b2e,stroke-dasharray: 4 2;
+  classDef settings fill:#ece4fc,stroke:#6d40d6,color:#171b2e;
+```
+
+**Fig. 4.4.7 — Authenticated app — dashboard & project workspace.** The core build loop: from the dashboard prompt box into a project's Chat + Preview + Code workspace and its file/code/more views.
+
+```mermaid
+%%{init: {"flowchart":{"htmlLabels":false,"curve":"basis"},"theme":"base","themeVariables":{"background":"#ffffff","primaryColor":"#eef1fb","primaryBorderColor":"#3348c9","primaryTextColor":"#171b2e","lineColor":"#5b6472","secondaryColor":"#fbeecf","tertiaryColor":"#ffffff","fontFamily":"IBM Plex Mono, monospace","fontSize":"13px"}}}%%
+flowchart TB
+  dashboard["/dashboard — authed home: prompt entry"]
+  dashboardProjects["/dashboard/projects — project list, filters"]
+  workspace["/projects/:id — Chat + Preview + Code, CAP-001"]
+  viewFiles["?view=files — read-only file tree"]
+  viewCode["?view=codeEditor — read-only code viewer"]
+  viewMore["?view=more — tabbed panel switcher"]
+  dashboard -->|"submit prompt / open project"| workspace
+  dashboard -->|"click All projects / Starred / Owned by me"| dashboardProjects
+  dashboardProjects -->|"click a project card"| workspace
+  workspace -.->|"chat loop — send prompt, CAP-001"| workspace
+  workspace -.->|"preview toolbar, CAP-002 (unverified)"| workspace
+  workspace -->|"click Files"| viewFiles
+  workspace -->|"click Code"| viewCode
+  workspace -->|"click More"| viewMore
+  class dashboard authed;
+  class dashboardProjects authed;
+  class workspace workspace;
+  class viewFiles workspace;
+  class viewCode workspace;
+  class viewMore workspace;
+  classDef authed fill:#e3f5ec,stroke:#157a54,color:#171b2e;
+  classDef workspace fill:#f0dab4,stroke:#333333,color:#111111;
+```
+
+**Fig. 4.4.8 — Project workspace — the 8 "more" subviews.** Every panel behind ?view=more&subview=*, each mapped to the capability or feature it supports.
+
+```mermaid
+%%{init: {"flowchart":{"htmlLabels":false,"curve":"basis"},"theme":"base","themeVariables":{"background":"#ffffff","primaryColor":"#eef1fb","primaryBorderColor":"#3348c9","primaryTextColor":"#171b2e","lineColor":"#5b6472","secondaryColor":"#fbeecf","tertiaryColor":"#ffffff","fontFamily":"IBM Plex Mono, monospace","fontSize":"13px"}}}%%
+flowchart LR
+  viewMore["?view=more — tabbed panel switcher"]
+  subAnalytics["subview=analytics — visitor analytics, publish-gated"]
+  subCloud["subview=cloud — managed DB / auth / storage"]
+  subAi["subview=ai — AI usage & cost monitoring"]
+  subMcp["subview=mcp — Agent integrations (MCP)"]
+  subPayments["subview=payments — Shopify Claim-store handoff"]
+  subConnectors["subview=connectors — 3rd-party connectors (empty)"]
+  subSecurity["subview=security — security scans, CAP-005"]
+  subSeo["subview=seo — SEO wizard, CAP-003"]
+  viewMore -->|"click analytics tab"| subAnalytics
+  viewMore -->|"click cloud tab"| subCloud
+  viewMore -->|"click ai tab"| subAi
+  viewMore -->|"click mcp tab"| subMcp
+  viewMore -->|"click payments tab"| subPayments
+  viewMore -->|"click connectors tab"| subConnectors
+  viewMore -->|"click security tab"| subSecurity
+  viewMore -->|"click seo tab"| subSeo
+  class viewMore workspace;
+  class subAnalytics workspace;
+  class subCloud workspace;
+  class subAi workspace;
+  class subMcp workspace;
+  class subPayments workspace;
+  class subConnectors workspace;
+  class subSecurity workspace;
+  class subSeo workspace;
+  classDef workspace fill:#f0dab4,stroke:#333333,color:#111111;
+```
+
+**Fig. 4.4.9 — Settings.** Reached from the workspace switcher, not the sidebar. Twelve further nav items are visible but were not opened this session.
+
+```mermaid
+%%{init: {"flowchart":{"htmlLabels":false,"curve":"basis"},"theme":"base","themeVariables":{"background":"#ffffff","primaryColor":"#eef1fb","primaryBorderColor":"#3348c9","primaryTextColor":"#171b2e","lineColor":"#5b6472","secondaryColor":"#fbeecf","tertiaryColor":"#ffffff","fontFamily":"IBM Plex Mono, monospace","fontSize":"13px"}}}%%
+flowchart LR
+  dashboard["/dashboard — authed home: prompt entry"]
+  settingsHub(["Workspace switcher → Settings (not a page)"])
+  settingsAccount["/settings/account — profile, AI opt-out, 2FA"]
+  settingsWorkspace["/settings/workspace — profile, danger zone"]
+  settingsBilling["/settings/billing — plans & credit usage"]
+  settingsMore["12 more nav items — existence only, UNKNOWN content (Devices, Slack, People, Groups*, Identity*, Knowledge, Skills, Templates*, Connectors*, Git, Build secrets**, Managed registry**, MCP server. *Business **Enterprise)"]
+  profileHandle["/@handle — public user profile page"]
+  manualEntry(["User types an unrecognized URL"])
+  notFound["Any unknown path — clean 404 + Go home"]
+  dashboard -->|"click workspace switcher → Settings"| settingsHub
+  settingsHub -->|"click Account"| settingsAccount
+  settingsHub -->|"click Workspace"| settingsWorkspace
+  settingsHub -->|"click Plans & credit usage"| settingsBilling
+  settingsHub -.->|"click any other item"| settingsMore
+  settingsAccount -->|"click Open profile"| profileHandle
+  manualEntry -->|"/settings/profile guessed → 404"| notFound
+  class dashboard authed;
+  class settingsHub hub;
+  class settingsAccount settings;
+  class settingsWorkspace settings;
+  class settingsBilling settings;
+  class settingsMore unknown;
+  class profileHandle robots;
+  class manualEntry hub;
+  class notFound error;
+  classDef authed fill:#e3f5ec,stroke:#157a54,color:#171b2e;
+  classDef hub fill:#f2f2f2,stroke:#888888,color:#333333,stroke-dasharray: 2 2;
+  classDef settings fill:#ece4fc,stroke:#6d40d6,color:#171b2e;
+  classDef unknown fill:#e7e9ec,stroke:#5b6472,color:#171b2e,stroke-dasharray: 2 2;
+  classDef robots fill:#fbebcf,stroke:#a16a00,color:#171b2e,stroke-dasharray: 4 2;
+  classDef error fill:#fbe3e6,stroke:#b23a48,color:#171b2e;
+```
+
 ## 5. Feature Inventory
 
 - **Feature: Conversational app generation.** (supports CAP-001) OBSERVED — a natural-language prompt box ("Ask Lovable to build") on both the marketing homepage and the dashboard accepts a description and produces a working web app, visible end-to-end in the "Enchanted Attire" project's chat history (prompt → agent reasoning disclosure → automatic backend provisioning → live preview).
