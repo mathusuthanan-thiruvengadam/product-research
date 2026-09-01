@@ -13,10 +13,15 @@ drop it.
 - [ ] The final navigation map covers every reachable page/panel/subview
       found during exploration — not only the primary/happy-path journey —
       per `references/exploration-methodology.md`'s completeness guidance.
-- [ ] If the navigation map's nodes carry real per-screen content and
-      labeled action-triggers (not just route names), it was hand-authored
-      as inline SVG per the `artifact-diagramming` skill rather than forced
-      into a Mermaid flowchart that can't legibly carry that much detail.
+- [ ] If the navigation map is large, it was split into several focused
+      diagrams grouped by navigation region (rather than one graph with
+      every node) and every route recorded in the report appears in at
+      least one of them — per `references/exploration-methodology.md`'s
+      completeness guidance.
+- [ ] Every Mermaid edge label containing punctuation (especially
+      parentheses) is quoted, and every Mermaid block was actually rendered
+      (not just visually spot-checked) to confirm it parses before
+      publishing.
 - [ ] Page discovery aids (robots.txt, sitemap.xml, footer links) were
       checked where available.
 - [ ] Features were identified and grouped meaningfully (not one feature per

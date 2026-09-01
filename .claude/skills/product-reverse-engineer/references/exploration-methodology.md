@@ -79,17 +79,41 @@ requests by hand.
   own panels) where the parent/child layout already makes the relationship
   obvious — reserve labels for connectors that represent a real triggered
   action.
-- **Choose the rendering technique by how much each node needs to carry.** A
-  Mermaid flowchart is enough when the map is purely structural (route names
-  and containment only — e.g. the capability-exposure summary). Once nodes
-  need to show real per-screen content and labeled action-triggers, Mermaid's
-  node labels can't carry that much annotated detail legibly — hand-author
-  the diagram as inline SVG instead, following the `artifact-diagramming`
-  skill's mechanics (viewBox sizing, `currentColor`/token-based theming,
-  marker arrowheads, grid-aligned layout). For a map large enough to need
-  this treatment, it's normal for it to become the report's largest single
-  figure — that's a sign of real coverage, not a reason to trim it back down
-  to the primary path.
+- **Mermaid can carry real per-screen content, not just route names — keep
+  each node label to one line.** `id["/route — short use-case phrase"]` reads
+  fine; trying to cram multiple sentences or a bullet list into one node is
+  what actually becomes illegible, not Mermaid itself. Reserve hand-authored
+  inline SVG (per the `artifact-diagramming` skill's mechanics — viewBox
+  sizing, `currentColor` theming, marker arrowheads, grid-aligned layout) for
+  the rare case where a single node genuinely needs multi-line annotated
+  detail Mermaid can't express, not as the default once coverage gets large.
+- **Split a full-coverage map into several focused diagrams grouped by
+  navigation region, rather than one graph with every node.** A single
+  Mermaid flowchart with 80+ nodes and a handful of hub nodes fanning out to
+  dozens of children lays out at extreme aspect ratios (tens of thousands of
+  pixels wide, a few hundred tall) because the layout engine treats
+  same-rank siblings as a flat row with no wrapping — this is illegible
+  regardless of how much of the page can scroll. Group nodes the way a
+  reader already thinks about the site (top-level nav, each mega-menu, each
+  footer column, robots.txt-only routes, the authenticated app, each major
+  subsection of it) and render one right-sized diagram per group, each with
+  its own short caption. This is *more* legible than one mega-diagram at the
+  same total coverage, not a compromise — collectively they still need to
+  cover 100% of recorded routes; a coverage check (every node id from every
+  group appears somewhere) catches accidental drops.
+- **Quote any Mermaid edge label containing punctuation, especially
+  parentheses.** `A -->|clicked (assumed)| B` fails to parse — Mermaid's
+  edge-label grammar treats bare `(` as a special token between the pipes.
+  Always wrap edge labels in quotes: `A -->|"clicked (assumed)"| B`. This
+  applies to solid and dashed (`-.->`) edges alike.
+- **Validate every Mermaid block before publishing, not just visually
+  inspecting the finished page.** A parse error renders as an error message
+  in place of the diagram, but the artifact viewer sandboxes user-generated
+  content from browser automation, so a screenshot of the page's top may
+  look fine while a diagram further down is broken. Render each `mermaid`
+  code block through the actual Mermaid library first (e.g. a local page
+  loading Mermaid from a CDN, or any other real Mermaid parser) and confirm
+  each one returns SVG without error before copying it into the report.
 
 ## Page discovery
 

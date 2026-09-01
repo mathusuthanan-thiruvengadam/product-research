@@ -222,9 +222,11 @@ Structure the report content with these sections, in order:
    found during exploration, not only the primary/happy-path journey; include
    which capability (`CAP-<NNN>`) each part of the map exposes; per
    `references/exploration-methodology.md`'s navigation-map completeness and
-   node-style guidance, use a Mermaid diagram for purely structural maps and
-   a hand-authored inline SVG (per the `artifact-diagramming` skill) once
-   nodes need to carry real per-screen content and labeled action-triggers
+   node-style guidance, Mermaid can carry real per-screen content and
+   labeled action-triggers as long as node labels stay to one line — split a
+   large map into several focused diagrams grouped by navigation region
+   rather than one graph with every node, and quote any edge label
+   containing punctuation
 5. **Feature Inventory** — note which capability each feature supports,
    where applicable
 6. **User Journeys** — including iterative/refinement loops, represented
