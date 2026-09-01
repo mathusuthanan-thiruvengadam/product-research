@@ -1,0 +1,1366 @@
+<title>Lovable: Reverse-Engineered</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --paper:#F1F3F5; --surface:#FFFFFF; --surface-2:#F7F8FA;
+  --ink:#14181F; --ink-soft:#4B5563; --ink-faint:#8A93A0;
+  --line:#DEE3E7; --line-strong:#C7CED4;
+  --accent:#2452E8; --accent-ink:#16339E; --accent-soft:#E7ECFC; --accent-soft-strong:#D3DCFA;
+  --observed:#157A54; --observed-bg:#DFF3E9;
+  --inferred:#A16A00; --inferred-bg:#FBEBCF;
+  --assumed:#6D40D6; --assumed-bg:#ECE4FC;
+  --unknown:#5B6472; --unknown-bg:#E7E9EC;
+  --speculative:#B23A48; --speculative-bg:#FBE3E6;
+  --shadow: 0 1px 2px rgba(20,24,31,.05), 0 4px 14px rgba(20,24,31,.05);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#12151A; --surface:#1A1E25; --surface-2:#20242C;
+    --ink:#E6E9EE; --ink-soft:#ABB3BF; --ink-faint:#767F8C;
+    --line:#2B3038; --line-strong:#3A4048;
+    --accent:#8CA3FF; --accent-ink:#B7C4FF; --accent-soft:#202A4A; --accent-soft-strong:#283662;
+    --observed:#4FD9A0; --observed-bg:#123227;
+    --inferred:#E8B25A; --inferred-bg:#3A2C13;
+    --assumed:#C3ADFF; --assumed-bg:#271E42;
+    --unknown:#98A1AD; --unknown-bg:#232830;
+    --speculative:#F0808C; --speculative-bg:#3A1E22;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#12151A; --surface:#1A1E25; --surface-2:#20242C;
+  --ink:#E6E9EE; --ink-soft:#ABB3BF; --ink-faint:#767F8C;
+  --line:#2B3038; --line-strong:#3A4048;
+  --accent:#8CA3FF; --accent-ink:#B7C4FF; --accent-soft:#202A4A; --accent-soft-strong:#283662;
+  --observed:#4FD9A0; --observed-bg:#123227;
+  --inferred:#E8B25A; --inferred-bg:#3A2C13;
+  --assumed:#C3ADFF; --assumed-bg:#271E42;
+  --unknown:#98A1AD; --unknown-bg:#232830;
+  --speculative:#F0808C; --speculative-bg:#3A1E22;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+}
+
+*{box-sizing:border-box;}
+@media (prefers-reduced-motion: reduce){ *{animation-duration:0.001ms !important; transition-duration:0.001ms !important; scroll-behavior:auto !important;} }
+
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:'IBM Plex Sans', -apple-system, 'Segoe UI', sans-serif;
+  font-size:16px; line-height:1.6;
+}
+html{scroll-behavior:smooth;}
+
+a{color:var(--accent-ink); text-decoration-color:var(--line-strong); text-underline-offset:2px;}
+a:hover{text-decoration-color:currentColor;}
+a:focus-visible, button:focus-visible, summary:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:2px;}
+
+code{font-family:'IBM Plex Mono', 'SF Mono', Consolas, monospace; font-size:.86em; background:var(--surface-2); border:1px solid var(--line); border-radius:4px; padding:.1em .35em; color:var(--accent-ink);}
+
+/* ---------- shell layout ---------- */
+.shell{max-width:1180px; margin:0 auto; padding:0 24px 96px;}
+
+.masthead{
+  background:var(--surface-2); border-bottom:1px solid var(--line);
+  margin:0 calc(50% - 50vw); padding:0 calc(50vw - 50% + 24px);
+}
+.masthead-inner{max-width:1132px; margin:0 auto; padding:40px 0 32px;}
+.eyebrow{
+  font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--accent-ink); display:flex; align-items:center; gap:10px; margin-bottom:14px;
+}
+.eyebrow::before{content:""; width:22px; height:1px; background:var(--accent); display:inline-block;}
+.masthead h1{
+  font-family:'IBM Plex Serif', Georgia, serif; font-weight:600; font-size:clamp(28px,4vw,42px);
+  line-height:1.15; margin:0 0 18px; max-width:22ch; text-wrap:balance; color:var(--ink);
+}
+.meta-grid{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:18px 32px;
+  padding:18px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); margin-bottom:20px;
+}
+.meta-item dt{font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:5px;}
+.meta-item dd{margin:0; font-size:14.5px; color:var(--ink-soft);}
+.meta-item dd code{font-size:.92em;}
+
+.legend{display:flex; flex-wrap:wrap; gap:8px 10px; align-items:center; font-size:13.5px; color:var(--ink-soft); margin-bottom:22px;}
+.legend-label{font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); margin-right:2px;}
+
+.revisions{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px;}
+.revisions li{display:grid; grid-template-columns:88px 1fr; gap:14px; font-size:13.5px; color:var(--ink-soft); line-height:1.55;}
+.revisions .rev-pass{font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--accent-ink); padding-top:1px;}
+.revisions strong{color:var(--ink); font-weight:600;}
+
+/* ---------- tags & badges ---------- */
+.tag{
+  display:inline-flex; align-items:center; font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:600;
+  letter-spacing:.04em; padding:2px 7px; border-radius:4px; white-space:nowrap; line-height:1.5;
+}
+.tag-observed{color:var(--observed); background:var(--observed-bg);}
+.tag-inferred{color:var(--inferred); background:var(--inferred-bg);}
+.tag-assumed{color:var(--assumed); background:var(--assumed-bg);}
+.tag-unknown{color:var(--unknown); background:var(--unknown-bg);}
+.tag-speculative{color:var(--speculative); background:var(--speculative-bg); text-transform:uppercase;}
+
+.conf{font-weight:600;}
+.conf-high{color:var(--observed);}
+.conf-medium{color:var(--inferred);}
+.conf-low{color:var(--unknown);}
+
+/* ---------- grid: rail + main ---------- */
+.layout{display:grid; grid-template-columns:250px minmax(0,1fr); gap:56px; padding-top:36px; align-items:start;}
+.rail{position:sticky; top:24px; max-height:calc(100vh - 48px); overflow-y:auto; padding-bottom:24px;}
+.rail-title{font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); margin:0 0 12px;}
+.toc{list-style:none; margin:0 0 28px; padding:0; font-size:13.5px;}
+.toc li{margin:0;}
+.toc > li{margin-bottom:2px;}
+.toc a{
+  display:flex; gap:9px; align-items:baseline; padding:5px 8px; border-radius:5px; color:var(--ink-soft);
+  text-decoration:none; transition:background .12s ease, color .12s ease;
+}
+.toc a:hover{background:var(--surface); color:var(--ink);}
+.toc a.active{background:var(--accent-soft); color:var(--accent-ink); font-weight:600;}
+.toc-num{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-faint); min-width:1.4em;}
+.toc a.active .toc-num{color:var(--accent-ink);}
+.toc-sub{list-style:none; margin:2px 0 6px 22px; padding:0; border-left:1px solid var(--line); }
+.toc-sub a{font-size:12.5px; padding:4px 8px;}
+.toc-sub .toc-num{min-width:0; font-size:10.5px;}
+
+.rail-legend{border-top:1px solid var(--line); padding-top:16px; display:flex; flex-direction:column; gap:8px;}
+.rail-legend-row{display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--ink-soft);}
+
+.toc-toggle{display:none;}
+
+main{min-width:0;}
+
+/* ---------- document typography ---------- */
+.doc h2{
+  font-family:'IBM Plex Serif', Georgia, serif; font-weight:600; font-size:26px; color:var(--ink);
+  margin:56px 0 18px; padding-top:8px; border-top:1px solid var(--line); text-wrap:balance;
+  scroll-margin-top:24px;
+}
+.doc > h2:first-child{border-top:none; margin-top:0;}
+.doc h3{
+  font-family:'IBM Plex Serif', Georgia, serif; font-weight:600; font-size:19px; color:var(--ink);
+  margin:34px 0 14px; text-wrap:balance; scroll-margin-top:24px;
+}
+.doc h3:has(+ *){margin-top:34px;}
+.doc p, .doc li{max-width:74ch;}
+.doc p{margin:0 0 14px; color:var(--ink-soft);}
+.doc ul, .doc ol{margin:0 0 16px; padding-left:1.3em; color:var(--ink-soft);}
+.doc li{margin-bottom:8px; line-height:1.65;}
+.doc li strong{color:var(--ink);}
+.doc strong{color:var(--ink); font-weight:600;}
+.doc em{color:var(--ink); font-style:italic;}
+.doc hr{border:none; border-top:1px solid var(--line); margin:40px 0;}
+.doc h2 + p, .doc h2 + ul{margin-top:0;}
+
+/* first meta block under h1 (target/date/etc paragraph) already pulled into masthead - doc starts clean */
+
+.table-wrap{overflow-x:auto; margin:0 0 20px; border:1px solid var(--line); border-radius:8px; box-shadow:var(--shadow);}
+table{border-collapse:collapse; width:100%; min-width:560px; background:var(--surface); font-size:14px;}
+thead th{
+  text-align:left; font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.05em; text-transform:uppercase;
+  color:var(--ink-faint); background:var(--surface-2); padding:11px 14px; border-bottom:1px solid var(--line); white-space:nowrap;
+}
+tbody td{padding:12px 14px; border-bottom:1px solid var(--line); color:var(--ink-soft); vertical-align:top; line-height:1.55;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:var(--surface-2);}
+
+/* ---------- spec cards (FR/NFR/EC/HBR) ---------- */
+.spec-list{display:flex; flex-direction:column; gap:12px; margin:0 0 24px;}
+.spec-card{
+  background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:16px 18px;
+  scroll-margin-top:24px;
+}
+.spec-head{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:8px;}
+.spec-id{font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:13px; color:var(--accent-ink); background:var(--accent-soft); padding:2px 8px; border-radius:4px;}
+.spec-tier-note{font-size:12.5px; color:var(--ink-faint);}
+.spec-statement{margin:0 0 10px; color:var(--ink); font-size:15px; line-height:1.6;}
+.spec-evidence{font-size:13.5px; margin:0 0 4px; color:var(--ink-soft);}
+.spec-evidence-label{font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-faint); margin-right:6px;}
+.spec-note{font-size:13px; color:var(--ink-faint); margin:6px 0 0; padding-top:6px; border-top:1px dashed var(--line); font-style:italic;}
+
+.hbr-caveat{
+  background:var(--speculative-bg); border:1px dashed var(--speculative); border-radius:8px; padding:16px 18px;
+  color:var(--ink); font-size:14.5px; margin:0 0 22px;
+}
+.hbr-card{border-style:dashed; border-color:var(--speculative);}
+.hbr-id{color:var(--speculative); background:var(--speculative-bg);}
+
+/* ---------- diagram figure ---------- */
+.diagram-figure{
+  margin:0 0 28px; background:#fff; border:1px solid var(--line-strong); border-radius:10px; padding:20px 20px 16px;
+  box-shadow:var(--shadow); overflow-x:auto;
+}
+.diagram-figure pre.mermaid{margin:0; background:transparent;}
+.diagram-figure figcaption{
+  font-family:'IBM Plex Mono',monospace; font-size:12px; color:#5B6472; margin-top:14px; padding-top:12px;
+  border-top:1px solid #E4E7EB; line-height:1.5;
+}
+
+/* ---------- CAP-00x capability sections get an id chip echo ---------- */
+.doc h3[id^="cap-"]::before{
+  content:attr(data-tag); font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--accent-ink);
+}
+
+footer.colophon{
+  margin-top:64px; padding-top:24px; border-top:1px solid var(--line);
+  font-size:13px; color:var(--ink-faint); line-height:1.7; max-width:74ch;
+}
+
+@media (max-width:960px){
+  .layout{grid-template-columns:1fr; gap:0;}
+  .rail{position:static; max-height:none; margin-bottom:8px;}
+  .rail .toc, .rail .rail-legend{display:none;}
+  .toc-toggle{
+    display:flex; width:100%; justify-content:space-between; align-items:center; cursor:pointer;
+    background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 16px;
+    font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft);
+    list-style:none;
+  }
+  .toc-toggle::-webkit-details-marker{display:none;}
+  .rail[open] .toc, .rail[open] .rail-legend{display:block;}
+  .rail[open] .rail-legend{display:flex;}
+}
+</style>
+
+<div class="masthead">
+  <div class="masthead-inner">
+    <div class="eyebrow">Product Reverse-Engineering Report</div>
+    <h1>Lovable — an AI app builder, reverse-engineered</h1>
+    <dl class="meta-grid">
+      <div class="meta-item"><dt>Target</dt><dd><a href="https://lovable.dev">lovable.dev</a></dd></div>
+      <div class="meta-item"><dt>Research pass 1</dt><dd>2026-08-26</dd></div>
+      <div class="meta-item"><dt>Latest update</dt><dd>2026-08-29 (pass 3)</dd></div>
+      <div class="meta-item"><dt>Researcher role</dt><dd>PM · UX researcher · QA engineer · business analyst · solution architect</dd></div>
+    </dl>
+    <div class="legend">
+      <span class="legend-label">Evidence tags</span>
+      <span class="tag tag-observed">OBSERVED</span><span style="color:var(--ink-faint)">directly witnessed</span>
+      <span class="tag tag-inferred">INFERRED</span><span style="color:var(--ink-faint)">reasonable deduction</span>
+      <span class="tag tag-assumed">ASSUMED</span><span style="color:var(--ink-faint)">Section 2 only, single affordance</span>
+      <span class="tag tag-unknown">UNKNOWN</span><span style="color:var(--ink-faint)">not determinable this session</span>
+    </div>
+    <ol class="revisions">
+      <li><span class="rev-pass">Pass 1 · 08-29</span><span>Re-synthesized under the capability-discovery methodology — added Section 2, no new browsing.</span></li>
+      <li><span class="rev-pass">Pass 2 · 08-29</span><span>Live re-verification of the "Enchanted Attire" project; upgraded <strong>CAP-001</strong> to Observed, surfaced <strong>CAP-006</strong> and <strong>CAP-007</strong>.</span></li>
+      <li><span class="rev-pass">Pass 3 · 08-29</span><span>With explicit authorization, actively tested <strong>CAP-002</strong> (inconclusive) and <strong>CAP-003</strong> (confirmed — one real, disclosed edit, 0.80 credits spent).</span></li>
+    </ol>
+  </div>
+</div>
+
+<div class="shell">
+  <div class="layout">
+    <nav class="rail" id="rail">
+      <details class="toc-toggle-wrap">
+        <summary class="toc-toggle">Contents <span aria-hidden="true">＋</span></summary>
+      </details>
+      <p class="rail-title">Contents</p>
+      <ul class="toc">
+    <li>
+      <a href="#1-executive-summary" data-toc-link><span class="toc-num">1</span>Executive Summary</a>
+      
+    </li>
+    <li>
+      <a href="#2-key-product-capabilities" data-toc-link><span class="toc-num">2</span>Key Product Capabilities</a>
+      <ul class="toc-sub">
+    <li>
+      <a href="#cap-001-interactive-requirement-refinement-prompt-build-iterate-loop" data-toc-link><span class="toc-num">CAP-001</span>Interactive Requirement Refinement</a>
+      
+    </li>
+    <li>
+      <a href="#cap-002-direct-manipulation-preview-editing" data-toc-link><span class="toc-num">CAP-002</span>Direct-Manipulation Preview Editing</a>
+      
+    </li>
+    <li>
+      <a href="#cap-003-conversational-seo-metadata-refinement" data-toc-link><span class="toc-num">CAP-003</span>Conversational SEO &amp; Metadata</a>
+      
+    </li>
+    <li>
+      <a href="#cap-004-contextual-cross-project-work-reuse" data-toc-link><span class="toc-num">CAP-004</span>Cross-Project Work Reuse</a>
+      
+    </li>
+    <li>
+      <a href="#cap-005-automated-security-remediation-on-publish" data-toc-link><span class="toc-num">CAP-005</span>Security Remediation on Publish</a>
+      
+    </li>
+    <li>
+      <a href="#cap-006-mid-task-interruption-steerability" data-toc-link><span class="toc-num">CAP-006</span>Mid-Task Interruption</a>
+      
+    </li>
+    <li>
+      <a href="#cap-007-consent-gated-integration-setup" data-toc-link><span class="toc-num">CAP-007</span>Consent-Gated Integration Setup</a>
+      
+    </li></ul>
+    </li>
+    <li>
+      <a href="#3-scope-method" data-toc-link><span class="toc-num">3</span>Scope &amp; Method</a>
+      
+    </li>
+    <li>
+      <a href="#4-site-map-navigation" data-toc-link><span class="toc-num">4</span>Site Map &amp; Navigation</a>
+      
+    </li>
+    <li>
+      <a href="#5-feature-inventory" data-toc-link><span class="toc-num">5</span>Feature Inventory</a>
+      
+    </li>
+    <li>
+      <a href="#6-user-journeys" data-toc-link><span class="toc-num">6</span>User Journeys</a>
+      
+    </li>
+    <li>
+      <a href="#7-forms-actions" data-toc-link><span class="toc-num">7</span>Forms &amp; Actions</a>
+      
+    </li>
+    <li>
+      <a href="#8-ui-states" data-toc-link><span class="toc-num">8</span>UI States</a>
+      
+    </li>
+    <li>
+      <a href="#9-authentication-boundaries" data-toc-link><span class="toc-num">9</span>Authentication Boundaries</a>
+      
+    </li>
+    <li>
+      <a href="#10-integrations" data-toc-link><span class="toc-num">10</span>Integrations</a>
+      
+    </li>
+    <li>
+      <a href="#11-settings" data-toc-link><span class="toc-num">11</span>Settings</a>
+      
+    </li>
+    <li>
+      <a href="#12-lifecycle-project" data-toc-link><span class="toc-num">12</span>Lifecycle (Project)</a>
+      
+    </li>
+    <li>
+      <a href="#13-observable-data-behavior" data-toc-link><span class="toc-num">13</span>Observable Data Behavior</a>
+      
+    </li>
+    <li>
+      <a href="#14-functional-requirements" data-toc-link><span class="toc-num">14</span>Functional Requirements</a>
+      
+    </li>
+    <li>
+      <a href="#15-non-functional-requirements" data-toc-link><span class="toc-num">15</span>Non-Functional Requirements</a>
+      
+    </li>
+    <li>
+      <a href="#16-edge-cases" data-toc-link><span class="toc-num">16</span>Edge Cases</a>
+      
+    </li>
+    <li>
+      <a href="#17-open-questions" data-toc-link><span class="toc-num">17</span>Open Questions</a>
+      
+    </li>
+    <li>
+      <a href="#18-mvp-candidate" data-toc-link><span class="toc-num">18</span>MVP Candidate</a>
+      
+    </li>
+    <li>
+      <a href="#19-gap-analysis" data-toc-link><span class="toc-num">19</span>Gap Analysis</a>
+      
+    </li>
+    <li>
+      <a href="#20-evidence-ledger" data-toc-link><span class="toc-num">20</span>Evidence Ledger</a>
+      
+    </li>
+    <li>
+      <a href="#21-hypothetical-backend-requirements-speculative-not-observed" data-toc-link><span class="toc-num">21</span>Hypothetical Backend Requirements</a>
+      
+    </li></ul>
+      <div class="rail-legend">
+        <p class="rail-title" style="margin-bottom:2px;">Tier legend</p>
+        <div class="rail-legend-row"><span class="tag tag-observed">OBS</span> witnessed directly</div>
+        <div class="rail-legend-row"><span class="tag tag-inferred">INF</span> deduced from evidence</div>
+        <div class="rail-legend-row"><span class="tag tag-assumed">ASM</span> single affordance only</div>
+        <div class="rail-legend-row"><span class="tag tag-unknown">UNK</span> not determinable</div>
+        <div class="rail-legend-row"><span class="tag tag-speculative">SPEC</span> backend, not observed</div>
+      </div>
+    </nav>
+    <main>
+      <div class="doc">
+        <h2 id="1-executive-summary">1. Executive Summary</h2>
+<p>Lovable is a web-based <strong>&quot;AI app builder&quot;</strong>: a user describes a product, internal tool, or website in natural language, and an AI agent generates, previews, and iteratively edits a production-grade full-stack web application in real time, backed by managed infrastructure (hosting, a Supabase-based database/auth/storage layer, Shopify for commerce, security scanning, analytics, SEO tooling, and one-click publishing). It targets a broad range of non-specialist and professional builders — the marketing site explicitly segments messaging for founders, product managers, designers, marketers, sales, ops, and internal-tools teams — and layers a conventional SaaS monetization model (free daily/credit allowance, paid per-seat-unlimited Pro/Business tiers, custom Enterprise) on top of a chat-driven build experience. OBSERVED evidence (a real, in-progress project called &quot;Enchanted Attire&quot;) shows the product actually orchestrating a third-party commerce backend (Shopify) autonomously in response to a one-line prompt, then exposing that generated app&#39;s file tree, live preview, analytics, security scans, and publishing controls inside one workspace. (Evidence: dashboard homepage, project workspace, <code>/home</code>.) The product&#39;s differentiating behavior — an interactive loop that turns a one-line prompt into a working app through disclosed reasoning, autonomous action, and proactive gap-narrowing — is treated as a first-class capability (CAP-001) in Section 2 below, rather than left implicit across the feature list.</p>
+<h2 id="2-key-product-capabilities">2. Key Product Capabilities</h2>
+<p>This section names the meaningful abilities the product gives the user through the <em>interaction</em> of its features and system behavior — not a restatement of the Feature Inventory (Section 5). Per the skill&#39;s capability-discovery methodology, a capability is documented here whenever the product interprets input, guides the user, suggests or recommends something, helps formulate or clarify a requirement, adapts to prior interaction, or otherwise runs an iterative loop, whether or not it has a dedicated page of its own.</p>
+<h3 id="cap-001-interactive-requirement-refinement-prompt-build-iterate-loop">CAP-001: Interactive Requirement Refinement (Prompt → Build → Iterate Loop)</h3>
+<ul>
+<li><strong>User goal:</strong> Turn a one-line, often underspecified idea into a working application without writing a full specification up front, and keep steering it as the picture becomes clearer.</li>
+<li><strong>What the product enables:</strong> The loop that defines the product category — Lovable interprets a free-text prompt, discloses its reasoning, pauses for explicit approval before taking an autonomous integration action (see CAP-007), reports exactly what was built and verified, proactively names what&#39;s still missing (including operational caveats the user didn&#39;t ask about), and offers next-step suggestions that concretely track the specific gap just identified — across multiple real rounds, not just one.</li>
+<li><strong>Initial user input:</strong> A single free-text description, e.g. &quot;Create a web app for ecommerce website mainly for ladies costumes.&quot;</li>
+<li><strong>System interpretation:</strong> A visible &quot;Thought for Ns&quot;-style reasoning disclosure at each step, followed by an explicit plan statement (&quot;I&#39;ll set up Shopify as the backend for product catalog, inventory, and checkout — First, let&#39;s decide how to set up Shopify&quot;). Directly observed live: an intermediate structured &quot;Questions answered&quot; panel (&quot;How would you like to set up Shopify? → Create a new store&quot;) recording a decision the system made as part of its plan, before the consent step in CAP-007.</li>
+<li><strong>Suggestions/guidance provided:</strong> Concrete, evolving across rounds — not a fixed script:<ul>
+<li>Round 1: a structured intake request when information was missing (&quot;What products would you like to sell? For each costume, please tell me: name, price, sizes, description, and optionally images&quot;), paired with a shortcut offer (&quot;If you want, I can also add a few sample ladies&#39; costume products first and you can edit them later&quot;).</li>
+<li>Round 2 (directly observed live, not in the original session): after adding sign-in, the system proactively surfaced an operational dependency the user hadn&#39;t asked about — &quot;Note: mobile OTP needs an SMS sender configured in Cloud → Users → Auth Settings → Phone before codes actually deliver; email and Google work right away&quot; — then offered suggestion chips that named that exact gap: &quot;Enable OTP SMS delivery,&quot; &quot;Add OTP resend UI,&quot; &quot;Implement password reset.&quot;</li>
+</ul>
+</li>
+<li><strong>User interaction with suggestions:</strong> Tap an inline button/chip to continue, type a free-form refinement instead (both observed — e.g. &quot;change the backgorund color to bit darker pinkish&quot; [sic] was accepted as a valid refinement mid-loop), or interrupt an in-progress step entirely (see CAP-006).</li>
+<li><strong>Refinement loop:</strong> At least two full rounds were directly observed live in this session, from the same project&#39;s persisted history: Round 1 — prompt → plan → consent-gated Shopify provisioning (CAP-007) → build report (&quot;homepage, header, cart drawer, and product-detail route are all working, and the build passes&quot;) → proactive gap identification (empty product catalog) → structured intake question. Round 2 — a later user instruction (&quot;provide option to sign-in using 3 methods: mobile OTP, email/password, OAuth&quot;) → build report (&quot;Sign-in is live with all three methods... plus a real signed-in state and sign-out&quot;) → proactive caveat (OTP delivery dependency) → suggestion chips that specifically track that caveat. This directly resolves the original report&#39;s Open Question 9 (Section 17): the suggestions are not a fixed generic set — round 2&#39;s chips are visibly different from round 1&#39;s and tied to what was just built.</li>
+<li><strong>System feedback on refinement:</strong> The live preview updates in place; each round closes with an explicit statement of what was verified before naming the next gap or dependency — this is what makes the loop legible rather than a black box.</li>
+<li><strong>Final result / output:</strong> A scoped, working application whose feature set — including its auth methods — was arrived at through several rounds of build-and-narrow, rather than fully specified before generation began.</li>
+<li><strong>Supporting UI/features:</strong> Conversational app generation, one-click Shopify commerce backend, live editable preview, build-status transparency, consent-gated integration setup (CAP-007), mid-task interruption (CAP-006) (Section 5, Feature Inventory).</li>
+<li><strong>UX significance:</strong> Removes the need to fully specify a build before starting; keeps the user in a tight &quot;see result → decide next step&quot; loop; and does the specific thing a good consultant does rather than a generic assistant — flags a dependency the user didn&#39;t think to ask about, at the moment it becomes relevant, with a concrete next action attached.</li>
+<li><strong>Why it&#39;s important / differentiating:</strong> Without this loop, the product would just be a one-shot code generator — a single prompt in, a finished (and likely wrong) app out, with no conversational path to correct it. The loop, not the chat box by itself, is the product&#39;s actual value proposition — and the round-2 evidence shows it&#39;s a genuine adaptive loop, not a scripted one.</li>
+<li><strong>Evidence:</strong> Project &quot;Enchanted Attire&quot; chat history and Details/Timeline view, browsed live 2026-08-29 (E3, E26); FR-1, FR-2, FR-4, FR-18 (Section 14); User Journey UJ-1 steps 1–5 and its Iteration/refinement loop subsection (Section 6.1).</li>
+<li><strong>Confidence:</strong> <span class="conf conf-high">High</span> — two full rounds directly observed live in this session, including the specific claim (adaptive, gap-tracking suggestions) that was previously only Inferred.</li>
+<li><strong>Classification:</strong> <span class="tag tag-observed">OBSERVED</span></li>
+</ul>
+<h3 id="cap-002-direct-manipulation-preview-editing">CAP-002: Direct-Manipulation Preview Editing</h3>
+<ul>
+<li><strong>User goal:</strong> Make a small, specific visual change without describing it in words.</li>
+<li><strong>What the product enables:</strong> A second refinement channel intended to run parallel to CAP-001 — instead of typing a chat instruction, the user can (per the toolbar&#39;s own accessibility labels) &quot;Select elements,&quot; &quot;Edit text inline,&quot; &quot;Draw annotation,&quot; or &quot;Add a comment&quot; directly on the live preview, for changes that are easier to point at than to describe.</li>
+<li><strong>Initial user input:</strong> A click on a specific element in the rendered preview, with a tool mode active.</li>
+<li><strong>Testing outcome (2026-08-29 pass 3, with explicit user authorization):</strong> Both &quot;Select elements&quot; and &quot;Edit text inline&quot; modes were activated (confirmed via the toolbar&#39;s highlighted state and the outer page&#39;s accessibility tree, which labels them exactly as above) and then clicked on rendered heading text in the live preview, across four separate clean attempts (single-click, double-click, click-then-type). None produced any observable effect — no selection outline, no inline editor, no chat entry, no change to the rendered text. The preview renders inside a cross-origin iframe (<code>id-preview--&lt;uuid&gt;.lovable.app</code>) that the outer page&#39;s own accessibility tree cannot see into (confirmed via a failed <code>find</code> query for the heading text), which is the most likely explanation: whatever mechanism the toolbar uses to hit-test clicks against iframe content did not respond to this session&#39;s synthetic pointer events, even though real hardware-level mouse events were dispatched. This is reported as an <strong>automation-specific limitation encountered while testing</strong>, not a determination that the feature is broken or doesn&#39;t exist — a human clicking with a real mouse may well see different behavior.</li>
+<li><strong>System interpretation / suggestions / refinement loop / system feedback / final result:</strong> Still Unknown — testing was inconclusive rather than negative.</li>
+<li><strong>Supporting UI/features:</strong> Live, editable preview with direct-manipulation overlay; anonymous preview commenting (Section 5).</li>
+<li><strong>UX significance:</strong> Lowers the effort for narrow, visual edits — the kind of change that&#39;s naturally faster to point at than to phrase as an instruction — and complements rather than replaces the chat loop, <em>if</em> it works as its labeling implies.</li>
+<li><strong>Why it&#39;s important / differentiating:</strong> Offering both a conversational and a direct-manipulation refinement path (not just one) would suggest the product is designed around &quot;however it&#39;s easiest for this user to express this specific change&quot; — but this is now a weaker claim than in the prior report version, since the mechanism itself resisted verification.</li>
+<li><strong>Evidence:</strong> Preview toolbar icons and accessibility labels (&quot;Select elements,&quot; &quot;Edit text inline,&quot; &quot;Draw annotation,&quot; &quot;Add a comment&quot;) observed in the project workspace (E3); four inconclusive live interaction attempts, 2026-08-29 pass 3 (E30).</li>
+<li><strong>Confidence:</strong> <span class="conf conf-low">Low</span> — the toolbar&#39;s presence, labeling, and active/inactive visual state are observed; its actual edit mechanics remain unverified after a genuine testing attempt, not merely unattempted.</li>
+<li><strong>Classification:</strong> <span class="tag tag-inferred">INFERRED</span> (existence); <span class="tag tag-unknown">UNKNOWN</span> (mechanics) — unchanged from the prior pass, but now backed by a documented negative test rather than an untested assumption</li>
+</ul>
+<h3 id="cap-003-conversational-seo-metadata-refinement">CAP-003: Conversational SEO &amp; Metadata Refinement</h3>
+<ul>
+<li><strong>User goal:</strong> Improve how the generated app appears in search/AI-search results without hand-editing meta tags.</li>
+<li><strong>What the product enables:</strong> Auto-generates SEO title/description, then — instead of a bare settings form — walks the user through a short structured wizard to change it, applies the result across every file that references site metadata, explains exactly what changed and where, and offers new suggestions that follow from the change just made.</li>
+<li><strong>Initial user input:</strong> Clicking &quot;Ask Lovable to edit details&quot; from the auto-generated &quot;How your site appears&quot; preview (no typed prompt needed to start).</li>
+<li><strong>System interpretation:</strong> The system opened a two-question wizard rather than a single open-ended chat turn: &quot;What should the main site title be? Type your own, enter &#39;keep current&#39; to keep &#39;[current title]&#39;, or enter &#39;let Lovable write it&#39; to have me suggest one&quot; — then the same pattern for the meta description — with visible progress state (&quot;Asking questions&quot; → &quot;Waiting for answers&quot; → &quot;Reviewing title/description updates options&quot;) and <strong>Skip all</strong> / <strong>Next</strong> / <strong>Submit</strong> controls.</li>
+<li><strong>Suggestions/guidance provided:</strong> The explicit three-way choice itself (keep current / write your own / let Lovable write it) is the guidance mechanism — it doesn&#39;t force the user to compose new copy from scratch. Answering &quot;let Lovable write it&quot; to both questions produced: <strong>New title:</strong> &quot;Enchanted Attire | Ladies&#39; Costumes &amp; Ethnic Wear Online&quot;; <strong>New description:</strong> &quot;Shop elegant ladies&#39; costumes, ethnic wear, and festive outfits at Enchanted Attire. Discover statement pieces for every occasion with easy returns.&quot;</li>
+<li><strong>User interaction with suggestions:</strong> Answered both wizard questions with &quot;let Lovable write it&quot; and submitted — a real, authorized edit to the user&#39;s live project (not a dry run).</li>
+<li><strong>System feedback on refinement:</strong> After a visible multi-step build trace (&quot;Finding all route metadata definitions&quot; → &quot;Reviewing content structure and intent&quot; → &quot;Applying new site metadata everywhere&quot;), the system reported precisely what it touched: &quot;Updated your site title and description across <code>__root.tsx</code>, <code>index.tsx</code>, and <code>product.$handle.tsx</code>,&quot; that product pages keep a short page-specific title prefix mirroring the new description, that <code>og:title</code>/<code>og:description</code> tags were updated to match, and &quot;Build passed successfully.&quot; New, gap-specific suggestion chips followed immediately: &quot;Add sitemap and robots,&quot; &quot;Set canonical URLs,&quot; &quot;Add JSON-LD schema,&quot; &quot;Verify [structured data]&quot; — the same adaptive-suggestion pattern documented in CAP-001, now confirmed in a second domain.</li>
+<li><strong>Final result / output:</strong> The &quot;How your site appears&quot; preview card updated live to the new title/description; this is a real, standing change to the project (revertible via the project&#39;s checkpoint history, per CAP-006&#39;s sibling &quot;Revert to this version&quot; control), not a preview-only simulation.</li>
+<li><strong>Supporting UI/features:</strong> SEO / AI-search optimization tooling (Section 5); the same underlying chat/build pipeline used by CAP-001.</li>
+<li><strong>UX significance:</strong> Replaces a typical SEO settings form with a short, bounded wizard rather than an open-ended prompt — lower effort than writing a title from scratch, but more structured (and less likely to be skipped or done badly) than a freeform chat request.</li>
+<li><strong>Why it&#39;s important / differentiating:</strong> This is the clearest evidence in the whole investigation that &quot;conversational refinement&quot; is a deliberate, reusable product-wide pattern rather than a one-off feature of the app-build loop — the same interpret → offer choices → apply → explain what changed → suggest next steps shape recurs exactly here, in a domain (SEO) that&#39;s usually a bare form.</li>
+<li><strong>Evidence:</strong> SEO subview, &quot;How your site appears&quot; preview copy (E12); live wizard interaction, browsed and exercised with explicit user authorization 2026-08-29 pass 3 (E29) — including the resulting file-level change report and updated preview card.</li>
+<li><strong>Confidence:</strong> <span class="conf conf-high">High</span> — the full loop, including a real applied edit and its precise effects, was directly observed.</li>
+<li><strong>Classification:</strong> <span class="tag tag-observed">OBSERVED</span></li>
+</ul>
+<h3 id="cap-004-contextual-cross-project-work-reuse">CAP-004: Contextual Cross-Project Work Reuse</h3>
+<ul>
+<li><strong>User goal:</strong> Bring existing work from another project into the current one without redoing it.</li>
+<li><strong>What the product enables:</strong> A &quot;@&quot;-style reference picker in the chat input, labeled &quot;Reuse work from other projects,&quot; that lets the user pull prior context into the current build conversation.</li>
+<li><strong>Initial user input / system interpretation / suggestions / refinement loop / feedback / result:</strong> Unknown — only the control&#39;s presence and label were observed; it was not exercised.</li>
+<li><strong>Supporting UI/features:</strong> Chat input (in-project) (Section 7, Forms &amp; Actions).</li>
+<li><strong>UX significance (assumed, based on the control&#39;s label and placement):</strong> Reduces the effort of restating context already established elsewhere — relevant for a workspace-level product where users are expected to run multiple related projects.</li>
+<li><strong>Why it&#39;s important / differentiating:</strong> A reference-picker built directly into the primary build-instruction input, rather than a separate &quot;import&quot; flow, suggests reuse is meant to be part of the same conversational loop as everything else, not a bolted-on feature.</li>
+<li><strong>Evidence:</strong> Chat-input branch point noted in UJ-1 (&quot;Reuse work from other projects&quot; reference-picker).</li>
+<li><strong>Confidence:</strong> <span class="conf conf-low">Low</span>.</li>
+<li><strong>Classification:</strong> <span class="tag tag-assumed">ASSUMED</span></li>
+</ul>
+<h3 id="cap-005-automated-security-remediation-on-publish">CAP-005: Automated Security Remediation on Publish</h3>
+<ul>
+<li><strong>User goal:</strong> Ship without personally tracking dependency vulnerabilities.</li>
+<li><strong>What the product enables (per public marketing claim, not witnessed behavior):</strong> An automated scan runs on every publish and can auto-fix non-breaking findings or block publishing on critical ones, in addition to the on-demand &quot;Basic&quot;/&quot;Deep&quot; scans available in-project.</li>
+<li><strong>Initial input:</strong> Not applicable — triggered by the publish action itself, not a user-authored instruction.</li>
+<li><strong>Suggestions/refinement loop:</strong> Not applicable in the interpret-suggest-refine sense; included here because it&#39;s the same underlying behavior class — the product acting on the user&#39;s behalf rather than requiring an explicit manual fix — named in the skill&#39;s capability taxonomy (automatic error correction).</li>
+<li><strong>Supporting UI/features:</strong> Automated + on-demand security scanning (Section 5).</li>
+<li><strong>UX significance:</strong> If accurate, removes a class of manual remediation work from the publish path.</li>
+<li><strong>Why it&#39;s important / differentiating:</strong> Distinguishes &quot;runs a scan and shows you a list&quot; from &quot;runs a scan and fixes what it safely can&quot; — the latter is a materially stronger product claim.</li>
+<li><strong>Evidence:</strong> Public <code>/security</code> page FAQ copy (E23); NFR-4 (Section 15).</li>
+<li><strong>Confidence:</strong> <span class="conf conf-low">Low</span> — this is a claim the product makes about itself; the auto-fix behavior itself was not witnessed (no publish was performed this session).</li>
+<li><strong>Classification:</strong> <span class="tag tag-assumed">ASSUMED</span></li>
+</ul>
+<h3 id="cap-006-mid-task-interruption-steerability">CAP-006: Mid-Task Interruption &amp; Steerability</h3>
+<ul>
+<li><strong>User goal:</strong> Change direction or stop an in-progress build step without waiting for it to finish or losing the rest of the project.</li>
+<li><strong>What the product enables:</strong> The user can interrupt a step the agent is actively working on with a plain &quot;stop it,&quot; and the system halts cleanly rather than finishing the step, silently discarding it, or leaving the project in an ambiguous partial state.</li>
+<li><strong>Initial user input:</strong> A typed interrupt (&quot;stop it&quot;) sent while the agent was mid-step on a sign-in/sign-up task.</li>
+<li><strong>System interpretation:</strong> The in-progress step is marked &quot;Interrupted&quot; in the chat history (visible as its own labeled state, not just a truncated response).</li>
+<li><strong>System feedback:</strong> An immediate, explicit confirmation of what did and didn&#39;t happen — &quot;Stopped — no changes made for sign-in/sign-up. Let me know when you&#39;d like to pick it back up or move on to something else.&quot; — rather than silence or an ambiguous partial diff.</li>
+<li><strong>User interaction:</strong> No special control was needed beyond typing into the same chat input used for everything else — interruption is part of the same conversational surface as instruction and refinement.</li>
+<li><strong>Final result / output:</strong> The project is left in a known, clean state (explicitly &quot;no changes made&quot;), and the conversation stays open for the user to redirect immediately.</li>
+<li><strong>Supporting UI/features:</strong> Chat input (in-project) (Section 7, Forms &amp; Actions); the same reasoning-disclosure mechanism used throughout CAP-001.</li>
+<li><strong>UX significance:</strong> Removes the fear of &quot;letting it run&quot; on a step the user has changed their mind about — the cost of course-correcting mid-task is one message, not a wasted build or a manual cleanup.</li>
+<li><strong>Why it&#39;s important / differentiating:</strong> Combined with CAP-001, this makes the loop bidirectional in real time, not just round-by-round — the user can steer within a step, not only between steps.</li>
+<li><strong>Evidence:</strong> Chat history, &quot;stop it&quot; / &quot;Interrupted&quot; / &quot;Stopped — no changes made...&quot; exchange, browsed live 2026-08-29 (E27).</li>
+<li><strong>Confidence:</strong> <span class="conf conf-high">High</span> — the full exchange, including the system&#39;s explicit no-partial-changes confirmation, was directly observed.</li>
+<li><strong>Classification:</strong> <span class="tag tag-observed">OBSERVED</span></li>
+</ul>
+<h3 id="cap-007-consent-gated-integration-setup">CAP-007: Consent-Gated Integration Setup</h3>
+<ul>
+<li><strong>User goal:</strong> Understand what a proposed integration/infrastructure change actually involves before it happens, and be able to decline it.</li>
+<li><strong>What the product enables:</strong> Before enabling a third-party integration on the user&#39;s behalf (observed for Shopify; likely the same pattern for other integrations per the UI&#39;s generality — see Open Questions), the system pauses and presents a structured card naming the integration, its concrete benefits, and its cost/reversibility, with explicit <strong>Skip</strong> and <strong>Allow</strong> actions — rather than silently provisioning it as a side effect of the plan.</li>
+<li><strong>Initial input:</strong> The system&#39;s own plan reaching a point where an integration is needed (e.g., &quot;First, let&#39;s decide how to set up Shopify&quot;).</li>
+<li><strong>System interpretation / guidance provided:</strong> A card titled &quot;Create Shopify Store&quot; with the framing &quot;Complete E-Commerce integration out of the box,&quot; three concrete benefit bullets (seamless Shopify integration; sell physical or digital goods; free to start, pay when ready), and an explicit reversibility note (&quot;You can disconnect the store later.&quot;).</li>
+<li><strong>User interaction:</strong> Two explicit actions offered side by side — <strong>Skip</strong> and <strong>Allow</strong> — rather than the integration simply happening once the plan mentions it.</li>
+<li><strong>System feedback:</strong> The chosen action is recorded in the project&#39;s Timeline/Details history as its own labeled step (&quot;Enabled Shopify&quot;), auditable after the fact.</li>
+<li><strong>Final result / output:</strong> The user has a clear, informed decision point before a third-party account/service is connected, not just a retroactive notice that it happened.</li>
+<li><strong>Supporting UI/features:</strong> The project workspace&#39;s Timeline/Details history view; one-click Shopify commerce backend (Section 5, Feature Inventory).</li>
+<li><strong>UX significance:</strong> Distinguishes &quot;the agent acted autonomously&quot; from &quot;the agent acted autonomously without asking&quot; — the loop remains fast, but a real trust boundary (connecting an external account) still gets an explicit, informed yes/no rather than being bundled into general build consent.</li>
+<li><strong>Why it&#39;s important / differentiating:</strong> This is the mechanism that makes CAP-001&#39;s autonomy safe to rely on — the original report&#39;s framing of Shopify provisioning as happening &quot;without requiring the user to manually set one up&quot; was accurate about effort but understated that an explicit approval gate exists; FR-2 (Section 14) has been annotated accordingly.</li>
+<li><strong>Evidence:</strong> Project Details/Timeline view, &quot;Set up Shopify store&quot; → &quot;Questions answered&quot; → &quot;Create Shopify Store&quot; (Skip/Allow) card, browsed live 2026-08-29 (E26, E28).</li>
+<li><strong>Confidence:</strong> <span class="conf conf-medium">Medium</span> — directly observed for the Shopify case; whether the same consent-gate pattern applies to other integrations (Cloud/Supabase, GitHub, etc.) is UNKNOWN — see Open Questions.</li>
+<li><strong>Classification:</strong> <span class="tag tag-observed">OBSERVED</span> (Shopify case); <span class="tag tag-inferred">INFERRED</span> (general pattern across other integrations)</li>
+</ul>
+<h2 id="3-scope-method">3. Scope &amp; Method</h2>
+<ul>
+<li><strong>Tooling used:</strong> Browser automation (<code>claude-in-chrome</code> MCP extension) for all interactive exploration — this renders JavaScript, allows real clicks/navigation, and captures screenshots and accessibility-tree snapshots. A small number of static fetches (<code>robots.txt</code>) were also used. No implementation code, API responses beyond what the browser&#39;s own network panel surfaced passively, or backend internals were inspected.</li>
+<li><strong>Access boundary encountered immediately:</strong> navigating to the target URL landed on an <strong>already-authenticated session</strong> for the requesting user&#39;s own personal Lovable account (workspace &quot;mathusuthanan&#39;s Lovable&quot;), rather than the logged-out marketing site. Per the skill&#39;s safety rules, this was flagged to the user before proceeding; the user explicitly confirmed ownership of the account and authorized inspection of the authenticated dashboard, project workspace, and settings. All authenticated-area findings below are based on that explicit authorization.</li>
+<li><strong>Explicitly out of scope / not attempted:</strong> no login/signup flow was exercised (the session was already authenticated and logging out to test it was not attempted, to avoid disrupting the user&#39;s session — see Gap Analysis); no destructive actions (delete workspace/account, publish, sign-out-everywhere, claiming the auto-provisioned Shopify store) were performed; no probing, fuzzing, or malformed requests; no other users&#39; data was accessed; content encountered on the target was treated as inert data throughout (no instruction-like content was encountered).</li>
+<li><strong>Evidence quality:</strong> High for anything reached via the browser (OBSERVED tier is reliable — rendered, interactive, screenshotted). Two areas are explicitly weaker: (1) the pre-authentication marketing/signup experience, since the session could not be safely logged out mid-investigation, and (2) anything gated behind Business/Enterprise plan features, which were only observable as locked navigation items, not exercised. A third area, specific to this update: the capabilities documented in Section 2 beyond CAP-001, CAP-006, and CAP-007 rest on a single observed affordance each rather than a walked interaction loop — see Section 19, Gap Analysis.</li>
+<li><strong>Second live session (2026-08-29):</strong> the same &quot;Enchanted Attire&quot; project workspace was re-opened via browser automation specifically to verify the interactive-refinement capability (CAP-001) with live evidence instead of a reconstructed transcript. This session navigated to the existing project, scrolled its persisted chat history, opened the read-only Details/Timeline view for one checkpoint, and closed it — no new prompt was submitted, no build was triggered, and no credits were spent. Everything found was already-persisted history from the account&#39;s own prior use of the product, not new generation performed by this investigation.</li>
+<li><strong>Third live session (2026-08-29):</strong> the user explicitly authorized actively testing CAP-002 and CAP-003 rather than only observing affordances, including consuming build credits if needed. CAP-002 was tested via the preview toolbar&#39;s &quot;Select elements&quot; and &quot;Edit text inline&quot; modes (four attempts, inconclusive — see CAP-002, Section 2). CAP-003 was tested by completing the SEO title/description wizard with real submitted answers, which triggered a real build and applied a real, standing change to the project — this is the one point in the whole investigation where new content was actually generated/changed by this investigation&#39;s own actions, and it was done with explicit authorization and is fully disclosed here and in CAP-003.</li>
+</ul>
+<h2 id="4-site-map-navigation">4. Site Map &amp; Navigation</h2>
+<h3 id="4-1-public-marketing-site-top-nav-present-on-marketing-pages-such-as-home-pricing-security-templates">4.1 Public marketing site (top nav, present on marketing pages such as <code>/home</code>, <code>/pricing</code>, <code>/security</code>, <code>/templates</code>)</h3>
+<p><span class="tag tag-observed">OBSERVED</span> primary nav: <code>Solutions</code> (mega-menu) · <code>Resources</code> (mega-menu) · <code>Community</code> (<code>/community</code>) · <code>Enterprise</code> (<code>/enterprise-landing</code>) · <code>Pricing</code> (<code>/pricing</code>) · <code>Security</code> (<code>/security</code>) · a primary CTA button that reads <strong>&quot;Open Lovable&quot;</strong> and links to <code>/dashboard</code> when already authenticated (INFERRED: reads &quot;Sign up&quot;/&quot;Log in&quot; when logged out — not directly observed, see Gap Analysis).</p>
+<p><span class="tag tag-observed">OBSERVED</span> &quot;Solutions&quot; mega-menu links (persona/use-case pages): <code>/for-work</code>, <code>/founders</code>, <code>/product-managers</code>, <code>/designers</code>, <code>/marketers</code>, <code>/sales</code>, <code>/ops</code>, <code>/people</code>, <code>/use-cases/websites</code>, <code>/prototypes</code>, <code>/tools</code>.</p>
+<p><span class="tag tag-observed">OBSERVED</span> &quot;Resources&quot; mega-menu links: <code>/blog</code>, <code>/partners</code>, <code>/templates</code>, <code>/guides</code>, <code>/connect</code>, <code>/customers</code>, <code>/blog/series-c</code>, plus external links to <code>academy.lovable.app</code> and <code>docs.lovable.dev</code>.</p>
+<p><span class="tag tag-observed">OBSERVED</span> footer (full site map), grouped as rendered:</p>
+<ul>
+<li>Company: <code>/careers</code>, <code>/brand</code> (Press &amp; media), <code>/enterprise-landing</code>, <code>/security</code>, <code>trust.lovable.dev</code> (Trust center), <code>/partners</code>, <code>/pricing</code>, <code>/students</code> (Student discount)</li>
+<li>Solutions: <code>/for-work</code>, <code>/founders</code>, <code>/product-managers</code>, <code>/designers</code>, <code>/marketers</code>, <code>/sales</code>, <code>/ops</code>, <code>/people</code>, <code>/prototypes</code> (Prototyping), <code>/tools</code> (Internal Tools)</li>
+<li>Resources: <code>/download</code>, <code>docs.lovable.dev/integrations/introduction</code> (Connections), <code>docs.lovable.dev/changelog</code> (Changelog), <code>status.lovable.dev</code> (Status), <code>docs.lovable.dev/introduction/welcome</code> (Learn), <code>/templates</code>, <code>/guides</code>, <code>/connect</code> (Connectors), <code>/mcp</code> (MCP server), <code>/videos</code>, <code>/blog</code>, <code>/support</code>, <code>/reviews</code>, <code>/sitemap</code></li>
+<li>Legal: <code>/privacy</code>, <code>/do-not-sell-or-share-my-personal-information</code>, <code>/cookie-policy</code>, <code>lovable.dev/legal</code> (Enterprise terms), <code>/terms</code> (General terms), <code>/desktop-app-terms</code>, <code>/domain-registration-terms</code>, <code>/dmca</code>, <code>/accessibility</code>, <code>rules.lovable.dev</code> (Platform rules), <code>/abuse</code> (Report abuse), <code>/security-issues</code> (Report security concerns), <code>/data-processing-agreement</code></li>
+<li>Partner/community: <code>/partners</code> (Become a partner), <code>/experts</code> (Hire a Lovable expert), <code>/partners/affiliates</code>, <code>/community-code-of-conduct</code>, social: Discord, Reddit, X/Twitter, YouTube, LinkedIn</li>
+<li>A language selector (&quot;EN&quot;) is present in the footer.</li>
+</ul>
+<p><span class="tag tag-observed">OBSERVED</span> (<code>robots.txt</code>, fetched directly): discloses additional routes not surfaced in on-page navigation — <code>/auth</code> (the login/signup route, INFERRED to be the sign-in page by name and by convention), <code>/@*</code> (per-user public profile handles, matching the &quot;public profile / username&quot; feature seen in Account settings), <code>/desktop-quick-chat</code> (implies a desktop-app quick-entry surface), and <code>/landing</code> + <code>/landing/*</code> (implies dedicated marketing/campaign landing pages separate from <code>/home</code>). Notably, AI-crawler user agents (<code>GPTBot</code>, <code>ClaudeBot</code>, <code>PerplexityBot</code>, <code>Google-Extended</code>, etc.) are explicitly allowed to crawl the marketing site but disallowed from <code>/projects/</code> — i.e., Lovable wants AI-assistant discoverability for its own marketing pages while excluding user-generated project workspaces from AI indexing. <code>Sitemap: https://lovable.dev/sitemap.xml</code> is declared (not separately fetched).</p>
+<h3 id="4-2-authenticated-application">4.2 Authenticated application</h3>
+<p><span class="tag tag-observed">OBSERVED</span> sidebar (persistent, on <code>/dashboard</code> and sub-pages): <code>Dashboard</code>, <code>Search</code> (⌘K shortcut shown), <code>Connectors</code> (workspace-level — not opened, see Gap Analysis), a <code>Projects</code> group (<code>All projects</code>, <code>Starred</code>, <code>Owned by me</code>), and a <code>Recents</code> list of recently opened projects. A workspace switcher sits above the sidebar showing the current workspace name/avatar.</p>
+<p><span class="tag tag-observed">OBSERVED</span> routes exercised:</p>
+<ul>
+<li><code>/dashboard</code> — home / &quot;what&#39;s on your mind&quot; prompt entry point</li>
+<li><code>/dashboard/projects</code> — full project list with filters</li>
+<li><code>/projects/:id</code> — the project workspace (chat + preview + code), with a <code>?view=</code> query parameter switching between <code>files</code>, <code>codeEditor</code>, and <code>more</code>, and <code>more</code> further taking a <code>?subview=</code> of <code>analytics</code>, <code>cloud</code>, <code>ai</code>, <code>mcp</code> (labeled &quot;Agent integrations&quot; in the UI), <code>payments</code>, <code>connectors</code>, <code>security</code>, <code>seo</code></li>
+<li><code>/settings/account</code>, <code>/settings/workspace</code>, <code>/settings/billing</code> — personal, workspace, and plan/billing settings respectively</li>
+</ul>
+<h3 id="4-3-capability-exposure">4.3 Capability exposure</h3>
+<p>Where each Section 2 capability actually surfaces, since none of them have a dedicated settings page or menu entry of their own:</p>
+<figure class="diagram-figure">
+  <pre class="mermaid">%%{init: {"theme":"base","themeVariables":{"background":"#ffffff","primaryColor":"#eef1fb","primaryBorderColor":"#3348c9","primaryTextColor":"#171b2e","lineColor":"#3348c9","secondaryColor":"#fbeecf","tertiaryColor":"#ffffff","fontFamily":"IBM Plex Mono, monospace","fontSize":"14px"}}}%%
+flowchart LR
+  Home["/home"] -->|already signed in| Dashboard["/dashboard"]
+  Home -->|sign up / log in| Auth["/auth (not observed)"]
+  Auth --> Dashboard
+  Dashboard --> Projects["/dashboard/projects"]
+  Dashboard --> Settings["/settings/*"]
+  Dashboard -->|open / create project| Workspace["/projects/:id — Chat + Preview"]
+  Workspace -->|chat loop| Workspace
+  Workspace -.->|preview toolbar, CAP-002| Workspace
+  Workspace --> Files["?view=files"]
+  Workspace --> Code["?view=codeEditor"]
+  Workspace --> More["?view=more"]
+  More --> SEO["subview=seo — CAP-003"]
+  More --> Security["subview=security — CAP-005"]
+  More --> Analytics["subview=analytics"]
+  More --> Cloud["subview=cloud"]
+  More --> AI["subview=ai"]
+  More --> MCP["subview=mcp"]
+  More --> Payments["subview=payments"]
+  More --> Connectors["subview=connectors"]
+
+  classDef cap fill:#f0dab4,stroke:#333,color:#111;
+  class Workspace cap;</pre>
+  <figcaption>Fig. 4.3 — capability exposure across the route tree. Highlighted node marks the project workspace, where four of five capabilities converge.</figcaption>
+</figure>
+<ul>
+<li><strong>CAP-001 (Interactive Requirement Refinement):</strong> entirely within <code>/projects/:id</code>&#39;s chat pane; entry points are the prompt box on <code>/home</code> and <code>/dashboard</code>.</li>
+<li><strong>CAP-002 (Direct-Manipulation Preview Editing):</strong> the floating toolbar overlaid on <code>/projects/:id</code>&#39;s Preview pane.</li>
+<li><strong>CAP-003 (Conversational SEO &amp; Metadata Refinement):</strong> <code>/projects/:id?view=more&amp;subview=seo</code>.</li>
+<li><strong>CAP-004 (Contextual Cross-Project Work Reuse):</strong> the <code>@</code>-reference picker inside the same chat input as CAP-001.</li>
+<li><strong>CAP-005 (Automated Security Remediation on Publish):</strong> <code>/projects/:id?view=more&amp;subview=security</code>, triggered implicitly by the (not-exercised) Publish action.</li>
+</ul>
+<h2 id="5-feature-inventory">5. Feature Inventory</h2>
+<ul>
+<li><strong>Feature: Conversational app generation.</strong> (supports CAP-001) OBSERVED — a natural-language prompt box (&quot;Ask Lovable to build&quot;) on both the marketing homepage and the dashboard accepts a description and produces a working web app, visible end-to-end in the &quot;Enchanted Attire&quot; project&#39;s chat history (prompt → agent reasoning disclosure → automatic backend provisioning → live preview).</li>
+<li><strong>Feature: Live, editable preview with direct-manipulation overlay.</strong> (supports CAP-001, CAP-002) OBSERVED — the generated app renders in an in-page preview pane with a floating toolbar (AI-edit &quot;sparkle&quot;, text edit, pencil/element edit, comment) overlaid on the canvas itself, distinct from the chat-driven edit path.</li>
+<li><strong>Feature: Anonymous preview commenting.</strong> (relates to CAP-002) OBSERVED — a first-run tooltip (&quot;Get feedback from anyone... No Lovable account needed to comment&quot;) plus a &quot;Share preview&quot; action in the Share panel.</li>
+<li><strong>Feature: Read-only code/file explorer with stack visibility.</strong> OBSERVED — a file tree and syntax-highlighted, per-file &quot;Download&quot; viewer for the generated project; editing is not offered in this view (labeled &quot;Read only&quot; with an adjacent &quot;Upgrade&quot; prompt).</li>
+<li><strong>Feature: Version history / checkpoints.</strong> OBSERVED — a History panel lists timestamped checkpoints (e.g., &quot;Set up Shopify store — Aug 17, 11:03 PM&quot;) alongside a separate &quot;Bookmarks&quot; tab.</li>
+<li><strong>Feature: One-click Shopify commerce backend.</strong> (supports CAP-001, CAP-007) OBSERVED — the agent proposed Shopify as the commerce backend for an e-commerce prompt and provisioned it after an explicit Skip/Allow consent step (see CAP-007), and a &quot;Payments&quot; panel offers to let the owner &quot;Claim store&quot; to gain direct Shopify-admin ownership.</li>
+<li><strong>Feature: Mid-build interruption control.</strong> (supports CAP-006) OBSERVED — typing &quot;stop it&quot; while a step is in progress halts it cleanly, with an explicit confirmation that no partial changes were made.</li>
+<li><strong>Feature: Consent card for integration setup.</strong> (supports CAP-007) OBSERVED — a structured card (benefits, reversibility note, Skip/Allow actions) is presented before an integration (observed: Shopify) is actually enabled, and the decision is recorded as its own step in the project&#39;s Timeline/Details history.</li>
+<li><strong>Feature: Optional managed backend (database/auth/storage).</strong> OBSERVED — a &quot;Cloud&quot; panel offers to &quot;Enable more features&quot; (built-in database with auth/user management, and file storage) and separately supports connecting an existing Supabase project.</li>
+<li><strong>Feature: Built-in analytics.</strong> OBSERVED — per-project visitor analytics (visitors, page views, views/visit, duration, bounce rate; source/page/device/country breakdowns), gated to become populated only after publishing.</li>
+<li><strong>Feature: AI usage/cost monitoring.</strong> OBSERVED — a per-project &quot;AI&quot; panel tracks credits used, request counts, success rate, average time, and a per-run log, with history depth gated by plan (Free = 24h, paid = up to 90 days).</li>
+<li><strong>Feature: Agent/MCP integration for published apps.</strong> OBSERVED — an &quot;Agent integrations&quot; panel offers to expose a published app to external AI assistants (ChatGPT, Claude, etc.) directly, opt-in via &quot;Enable agent integrations.&quot;</li>
+<li><strong>Feature: Automated + on-demand security scanning.</strong> (supports CAP-005) OBSERVED — per-project Security panel shows scan recency, lets the user trigger &quot;Basic&quot; or &quot;Deep&quot; scans, surfaces dependency-vulnerability counts, and (per the public Security page) can auto-fix non-breaking findings or block publishing on critical ones.</li>
+<li><strong>Feature: SEO / AI-search optimization tooling.</strong> (supports CAP-003) OBSERVED — auto-generated meta title/description preview, a Semrush-powered &quot;Research SEO with Lovable&quot; Q&amp;A panel, and a Pro-gated custom-domain search.</li>
+<li><strong>Feature: Third-party connectors.</strong> OBSERVED (empty state only) — a project-level &quot;Connectors&quot; panel for app-to-service connections (&quot;No connections yet&quot;); a public <code>/connect</code> marketing page and <code>/mcp</code> marketing page exist for this capability.</li>
+<li><strong>Feature: Collaboration &amp; sharing controls.</strong> OBSERVED — a Share panel with email invites, a toggleable invite link, per-collaborator/workspace access roles (e.g., &quot;Can edit&quot;), and an Owner role shown for the account holder.</li>
+<li><strong>Feature: Template gallery.</strong> OBSERVED — a searchable, categorized (Websites/Apps; subcategories like Portfolio, SaaS, Blog) gallery of 204 community-built templates, reachable from both the dashboard and the public marketing site.</li>
+<li><strong>Feature: Workspaces with credit-based billing.</strong> OBSERVED — a workspace construct (name, ID, handle, member defaults) with a dual credit system: a banked/expiring signup grant and a daily-resetting build allowance, plus paid-tier credit top-ups.</li>
+<li><strong>Feature: Account-level AI-training opt-out.</strong> OBSERVED — an explicit toggle in Account settings to exclude the user&#39;s own prompts/code/project data from being used for model training (Free/Pro only; Business/Enterprise are excluded by default per the public Security page).</li>
+<li><strong>Feature: Public user profile / &quot;skills&quot; showcase.</strong> OBSERVED (partially) — a public username and profile visibility setting, plus a Beta &quot;Showcase skills&quot; mechanism tied to real app usage, shareable to LinkedIn.</li>
+</ul>
+<h2 id="6-user-journeys">6. User Journeys</h2>
+<h3 id="6-1-prompt-to-app-interactive-requirement-refinement-cap-001-round-1-steps-below-reconstructed-from-persisted-chat-history-in-the-original-2026-08-26-session-round-1-and-a-second-round-were-both-directly-walked-live-via-browser-automation-on-2026-08-29-see-the-iteration-refinement-loop-subsection-below-and-cap-001-in-section-2">6.1 Prompt-to-app / Interactive Requirement Refinement — CAP-001 (round 1 steps below reconstructed from persisted chat history in the original 2026-08-26 session; round 1 and a second round were both directly walked live via browser automation on 2026-08-29, see the Iteration/refinement loop subsection below and CAP-001 in Section 2)</h3>
+<ol>
+<li>User lands on <code>/home</code> or <code>/dashboard</code> and types a one-line description into the &quot;Ask Lovable to build&quot; box. (OBSERVED: identical input control exists in both places.)</li>
+<li>Agent responds with a brief visible &quot;thinking&quot; disclosure (&quot;Thought for 6s&quot;) and a short natural-language plan (e.g., deciding to use Shopify for a commerce prompt). (OBSERVED, from chat history.)</li>
+<li>Agent surfaces an inline actionable step as a button in the chat itself (e.g., &quot;Set up Shopify store&quot;) rather than requiring a typed reply. (OBSERVED.)</li>
+<li>Agent reports build completion in prose, describing exactly what was verified (e.g., &quot;homepage, header, cart drawer, and product-detail route are all working, and the build passes&quot;), and proactively identifies the next gap (empty product catalog) with a clarifying question. (OBSERVED.)</li>
+<li>Suggested next-step chips are offered (&quot;Add costume catalog,&quot; &quot;Build checkout flow,&quot; etc.) as low-friction continuations. (OBSERVED.)</li>
+<li>User can continue iterating via chat (this loop continues from step 2), or switch to the direct-manipulation preview toolbar (sparkle/text/pencil/comment) to make in-place visual edits — a separate capability, CAP-002. (OBSERVED controls; the resulting edit behavior itself was not exercised — INFERRED from the tool icons and their apparent purpose.)</li>
+<li>Eventual <strong>Publish</strong> action (top-right, OBSERVED as present, not exercised) is implied to be the transition to a live, publicly reachable app — this is corroborated by the Analytics panel&#39;s empty-state copy (&quot;Publish your app to start tracking visitors&quot;) and the &quot;Claim store&quot; Shopify-ownership flow.</li>
+</ol>
+<p>Branch points observed: a &quot;Reuse work from other projects&quot; reference-picker in the chat input (cross-project context reuse — CAP-004), and route-based navigation via a page/route picker for multi-page projects (only one route, <code>/</code>, existed in the inspected project).</p>
+<h4 id="iteration-refinement-loop">Iteration / refinement loop</h4>
+<ul>
+<li><strong>Related capability:</strong> CAP-001 (Section 2)</li>
+<li><strong>What starts the loop:</strong> the initial one-line prompt.</li>
+<li><strong>What the system offers each round:</strong> an inline next-step action button in round 1 (e.g., &quot;Set up Shopify store,&quot; gated behind the CAP-007 consent card), then a row of suggestion chips after each build completes — round 1: &quot;Add costume catalog,&quot; &quot;Build checkout flow&quot;; round 2 (a later instruction to add sign-in methods): &quot;Enable OTP SMS delivery,&quot; &quot;Add OTP resend UI,&quot; &quot;Implement password reset,&quot; tracking the OTP-delivery caveat the system had just raised.</li>
+<li><strong>How the actor responds each round:</strong> tap the offered action/chip, type a free-form refinement instead (e.g. &quot;change the backgorund color to bit darker pinkish&quot; [sic] was accepted mid-loop), or interrupt the step entirely (see CAP-006, and the &quot;stop it&quot; exchange later in this same thread).</li>
+<li><strong>Rounds actually observed:</strong> two full rounds, directly observed live 2026-08-29 by browsing the project&#39;s persisted history (prompt → plan → consent-gated build → gap/dependency identification → gap-specific chips, twice over) — upgraded from the original single-round, transcript-reconstructed evidence.</li>
+<li><strong>How the loop ends:</strong> inferred to end at Publish (not exercised this session).</li>
+</ul>
+<h3 id="6-2-account-workspace-administration-walked-live">6.2 Account/workspace administration (walked live)</h3>
+<p>Dashboard → workspace switcher → Settings → (Account | Workspace | Plans &amp; credit usage) — each reached and read directly (OBSERVED, Section 7/11).</p>
+<h2 id="7-forms-actions">7. Forms &amp; Actions</h2>
+<div class="table-wrap"><table><thead><tr>
+<th>Form / control</th>
+<th>Fields / inputs</th>
+<th>Validation observed</th>
+<th>Submission outcome</th>
+</tr>
+</thead><tbody><tr>
+<td>Prompt entry (&quot;Ask Lovable to build&quot;)</td>
+<td>Free-text prompt, attach-file (+), mode selector (&quot;Build&quot;), mic (voice)</td>
+<td>UNKNOWN — not submitted, to avoid consuming the account&#39;s limited daily/plan credits without the user&#39;s separate authorization for that spend</td>
+<td>UNKNOWN</td>
+</tr>
+<tr>
+<td>Chat input (in-project)</td>
+<td>Free-text, <code>@</code>-reference picker (&quot;Reuse work from other projects&quot; — CAP-004), drag-and-drop file drop zone, attach, mic, send</td>
+<td>UNKNOWN — not submitted for the same credit-consumption reason</td>
+<td>UNKNOWN</td>
+</tr>
+<tr>
+<td>Share → Invite by email</td>
+<td>Email address, implicit role</td>
+<td>Not triggered (would send a real invite)</td>
+<td>UNKNOWN</td>
+</tr>
+<tr>
+<td>Workspace settings → Name</td>
+<td>Text, capped at 50 chars (live counter &quot;23/50&quot;)</td>
+<td>Character-limit enforcement observed passively (existing value under the cap)</td>
+<td>Not submitted</td>
+</tr>
+<tr>
+<td>Workspace settings → Default monthly member credit limit</td>
+<td>Numeric, optional (&quot;Leave empty to use no limit&quot;)</td>
+<td>UNKNOWN</td>
+<td>Not submitted</td>
+</tr>
+<tr>
+<td>SEO panel → domain search</td>
+<td>Text (three-segment input, likely domain/TLD picker)</td>
+<td>UNKNOWN</td>
+<td>Not submitted (Pro-gated)</td>
+</tr>
+<tr>
+<td>Templates → Search templates</td>
+<td>Free-text</td>
+<td>UNKNOWN</td>
+<td>Not submitted</td>
+</tr>
+</tbody></table></div>
+<p><strong>OBSERVED disabled/gated actions (not clicked, by design):</strong> &quot;Publish&quot; (top bar, real deploy action), &quot;Delete workspace&quot; / &quot;Leave workspace&quot; / &quot;Delete account&quot; / &quot;Sign out everywhere&quot; (all destructive), &quot;Claim store&quot; (transfers real Shopify ownership), &quot;Reauthenticate&quot; (security-sensitive), &quot;Upgrade&quot;/&quot;Book a demo&quot; (real payment/sales flows).</p>
+<h2 id="8-ui-states">8. UI States</h2>
+<ul>
+<li><strong>Loading states — OBSERVED:</strong> (1) the <code>/dashboard/projects</code> grid renders gray skeleton placeholder cards before real project data resolves; (2) on first in-app navigation into a project, the Preview/Files/Code panel rendered fully blank (see Section 16, Edge Cases) until a hard page reload, after which a live iframe took ~4–7 seconds to populate; (3) the SEO panel shows an explicit progress state (&quot;Scanning your project... Usually under a minute&quot; / &quot;Checking live page fetch, metadata review...&quot;).</li>
+<li><strong>Empty states — OBSERVED:</strong> generated storefront homepage shows a &quot;No products yet&quot; state when the Shopify catalog is empty; Analytics panel shows all-zero metric tiles and &quot;No data found for this time period&quot; per breakdown table, with a &quot;Publish your app to start tracking visitors&quot; CTA; AI-usage panel shows &quot;No activity — Nothing happened in this time range&quot;; project-level Connectors panel shows &quot;No connections yet — Ask Lovable if you need help adding one&quot;; Security panel shows &quot;No issues found&quot; after a scan.</li>
+<li><strong>Error states — OBSERVED:</strong> navigating to a non-existent settings route (<code>/settings/profile</code>) returned a clean 404 page (&quot;Page not found — The page you&#39;re looking for doesn&#39;t exist or has been moved&quot; + &quot;Go home&quot; CTA) rather than a raw error.</li>
+<li><strong>Anomalous state — OBSERVED:</strong> see Section 16 (Edge Cases).</li>
+</ul>
+<h2 id="9-authentication-boundaries">9. Authentication Boundaries</h2>
+<ul>
+<li><strong>OBSERVED:</strong> the investigation began already authenticated; the login/signup screen itself (<code>/auth</code>, per <code>robots.txt</code>) was not directly viewed, since doing so would have required ending the user&#39;s active session mid-investigation. This is recorded here as an <strong>authentication boundary the investigation deliberately did not cross</strong>, per the skill&#39;s safety rules, rather than one imposed by the target.</li>
+<li><strong>INFERRED:</strong> sign-in methods are UNKNOWN in detail, but &quot;Linked accounts... Link company account — Use your organization&#39;s single sign-on&quot; in Account settings, and the public Security page&#39;s statement that Lovable &quot;integrates with SAML and OIDC providers including Okta, Azure AD, and Google&quot; for enterprise customers, together indicate at least SSO/OIDC is supported alongside some primary consumer sign-in method (email and/or OAuth — not directly observed).</li>
+<li><strong>OBSERVED:</strong> once authenticated, the bare domain root and marketing homepage path redirect straight into <code>/dashboard</code> — logged-in users cannot casually view the marketing homepage at <code>/</code>; a separate <code>/home</code> path exists specifically to render the marketing page regardless of auth state.</li>
+<li><strong>OBSERVED:</strong> <code>robots.txt</code> blocks all crawling of <code>/auth</code>, reinforcing that it is treated as a sensitive/non-indexable route.</li>
+</ul>
+<h2 id="10-integrations">10. Integrations</h2>
+<ul>
+<li><strong>Shopify</strong> — OBSERVED, deeply: auto-provisioned as the commerce backend for an e-commerce prompt; a dedicated &quot;Payments&quot; panel exposes a &quot;Claim store&quot; ownership-transfer flow.</li>
+<li><strong>Supabase</strong> — OBSERVED (via UI copy): the &quot;Cloud&quot; panel&#39;s &quot;Enable more features&quot; (managed database, auth, file storage) is described as &quot;all managed for you,&quot; and a separate link explicitly reads &quot;Already have a Supabase project? Connect it here&quot; — indicating Supabase is the underlying managed-backend provider, connectable directly as well as auto-provisioned.</li>
+<li><strong>Semrush</strong> — OBSERVED: the SEO panel&#39;s &quot;Research SEO with Lovable&quot; feature (CAP-003) is explicitly labeled &quot;Powered by Semrush.&quot;</li>
+<li><strong>ChatGPT / Claude / &quot;other AI assistants&quot;</strong> — OBSERVED (marketing copy in-product): the &quot;Agent integrations&quot; panel frames MCP exposure explicitly around these named AI assistants being able to use a published app directly.</li>
+<li><strong>SSO identity providers (Okta, Azure AD, Google)</strong> — OBSERVED on the public Security page, framed as an Enterprise-tier capability (SAML/OIDC + SCIM).</li>
+<li><strong>GitHub</strong> — INFERRED: a &quot;Git&quot; item appears in Settings navigation, and the public Enterprise plan lists &quot;GitHub Enterprise, cloud or self-hosted&quot; and &quot;Git sync data residency,&quot; implying Git-repository sync/export exists; the Git settings screen itself was not opened in this session (see Gap Analysis).</li>
+<li><strong>LinkedIn</strong> — OBSERVED: the Account settings &quot;Showcase skills&quot; (Beta) feature explicitly ties into a LinkedIn profile.</li>
+<li><strong>Discord, Reddit, X/Twitter, YouTube, LinkedIn (company)</strong> — OBSERVED as footer community/social links only.</li>
+</ul>
+<h2 id="11-settings">11. Settings</h2>
+<p><strong>Personal (<code>/settings/account</code>) — OBSERVED in full:</strong></p>
+<ul>
+<li>Profile: public username, &quot;Open profile&quot; link, profile visibility (Public/other options not enumerated)</li>
+<li>Preferences: Language (English shown); toggles for &quot;Chat suggestions,&quot; &quot;Generation complete sound&quot; (default &quot;First generation&quot;), &quot;Auto-accept invitations&quot;</li>
+<li><strong>AI model training:</strong> an explicit per-account opt-in/opt-out toggle with detailed disclosure of what is/isn&#39;t covered (prompts, code, project files, configs, generated outputs are covered; content submitted by <em>end users of the apps you build</em> is explicitly excluded)</li>
+<li>Linked accounts: &quot;Link company account — Use your organization&#39;s single sign-on&quot;</li>
+<li>Security: two-factor management gated behind a re-authentication step; &quot;Sign out everywhere&quot;; account deletion (danger zone)</li>
+<li>&quot;Showcase skills&quot; (Beta): ties real product usage to shareable, unlockable skills</li>
+</ul>
+<p><strong>Workspace (<code>/settings/workspace</code>) — OBSERVED in full:</strong></p>
+<ul>
+<li>Workspace profile: avatar, name (50-char cap), a copyable Workspace ID, and a &quot;Workspace handle&quot; (implying a public workspace profile page, parallel to the personal <code>/@handle</code> pattern seen in <code>robots.txt</code>)</li>
+<li>Member defaults: an optional default monthly per-member credit limit</li>
+<li>Workspace access: &quot;Leave workspace&quot; (disabled when it&#39;s the account&#39;s only workspace)</li>
+<li>Danger zone: &quot;Delete workspace&quot; (explicitly 60-day recoverable)</li>
+</ul>
+<p><strong>Plans &amp; credit usage (<code>/settings/billing</code>) — OBSERVED in full:</strong> see Section 14 (monetization detail lives there since it doubles as an NFR/business-model artifact).</p>
+<p><strong>Settings navigation items present but not opened this session (visible, some plan-gated) — OBSERVED existence only, content UNKNOWN:</strong> Devices &amp; apps; Slack; People; Groups (Business badge); Identity (Business badge); Knowledge; Skills; Templates (Business badge); Connector settings (Business badge); Git; Build secrets (Enterprise badge); Managed registry (Enterprise badge); MCP server.</p>
+<h2 id="12-lifecycle-project">12. Lifecycle (Project)</h2>
+<ul>
+<li><strong>Creation — OBSERVED:</strong> a project is created by submitting a natural-language prompt (from <code>/home</code> or <code>/dashboard</code>); the system immediately begins an agentic build sequence with visible reasoning and progress messages.</li>
+<li><strong>In-progress / iteration — OBSERVED:</strong> the project persists a running chat transcript as its edit history; each meaningful build step appears to generate a &quot;checkpoint&quot; in the History panel (only one observed: &quot;Set up Shopify store&quot;).</li>
+<li><strong>Preview vs. Published — OBSERVED (inferred boundary):</strong> a project has an internal <code>id-preview--&lt;uuid&gt;.lovable.app</code> preview URL (seen in a pending network request) distinct from a real Publish action; Analytics data collection is explicitly gated on publishing (&quot;Publish your app to start tracking visitors&quot;).</li>
+<li><strong>Ownership handoff — OBSERVED:</strong> for Shopify-backed projects, there is an explicit &quot;Claim store&quot; transition where the auto-provisioned Shopify store is handed to the user&#39;s own Shopify admin.</li>
+<li><strong>Deletion/archival — UNKNOWN:</strong> no delete-project action was located or tested in this session (see Gap Analysis); workspace-level deletion is 60-day recoverable (OBSERVED), project-level equivalent behavior is UNKNOWN.</li>
+<li><strong>Branching — OBSERVED (label only):</strong> the project workspace header shows a branch selector reading &quot;main,&quot; implying git-style branching, but no branch-management UI was opened (UNKNOWN mechanics).</li>
+</ul>
+<h2 id="13-observable-data-behavior">13. Observable Data Behavior</h2>
+<ul>
+<li><strong>OBSERVED:</strong> analytics, AI-usage, and security-scan panels all distinguish &quot;nothing has happened yet&quot; from &quot;data exists but is zero,&quot; using explicit empty-state copy rather than blank tables.</li>
+<li><strong>OBSERVED:</strong> credit consumption is tracked per-project (the 30-day usage graph attributed 3.30 credits to &quot;Enchanted Attire&quot; and 0.30 credits to &quot;Enchanting Attire&quot; specifically), not just per-workspace in aggregate.</li>
+<li><strong>OBSERVED:</strong> two independent credit pools exist simultaneously for a Free account — a one-time/banked grant with a multi-year expiry date (&quot;5 credits expire on 17 August 2027&quot;) and a small daily-resetting allowance (&quot;Daily build credits... Resets at midnight UTC&quot;) — meaning &quot;credits&quot; is not a single uniform balance.</li>
+<li><strong>INFERRED:</strong> the presence of <code>.lovable/project.json</code> in every generated project&#39;s file tree suggests Lovable stores its own build/agent metadata alongside the generated application source, separate from the user-facing application code.</li>
+<li><strong>OBSERVED (2026-08-29, pass 3):</strong> a single conversational SEO edit (CAP-003 — a two-question wizard resulting in a title/description change across three files) consumed 0.80 of the account&#39;s daily free-credit balance, which dropped from &quot;1.60 free credits remaining today&quot; to &quot;0.80 free credits remaining today&quot; over the course of the request. This is a real, granular data point on build-credit cost for a small, well-scoped edit (distinct from the larger full-project-generation credit figures cited in Section 13&#39;s original observation).</li>
+</ul>
+<h2 id="14-functional-requirements">14. Functional Requirements</h2>
+<div class="spec-list">
+    <div class="spec-card" id="fr-1">
+      <div class="spec-head">
+        <span class="spec-id">FR-1</span>
+        <span class="tag tag-observed">OBSERVED</span>
+        
+      </div>
+      <p class="spec-statement">The system shall accept a free-text natural-language prompt and generate a working web application from it.</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Evidence</span> dashboard &quot;Ask Lovable to build&quot; input; project &quot;Enchanted Attire&quot; chat history showing the originating prompt &quot;Create a web app for ecommerce website mainly for ladies costumes&quot; followed by a generated, working preview.</p>
+      
+    </div>
+    <div class="spec-card" id="fr-2">
+      <div class="spec-head">
+        <span class="spec-id">FR-2</span>
+        <span class="tag tag-observed">OBSERVED</span>
+        
+      </div>
+      <p class="spec-statement">When a prompt implies e-commerce/product-selling functionality, the system shall propose Shopify as the commerce backend and, after the user explicitly approves via a Skip/Allow consent card (CAP-007), provision it without requiring the user to configure it manually.</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Evidence</span> chat message &quot;I&#39;ll set up Shopify as the backend for product catalog, inventory, and checkout&quot; followed by a &quot;Set up Shopify store&quot; inline action, a &quot;Create Shopify Store&quot; consent card with explicit Skip/Allow actions (E26, E28), and a subsequent Payments panel confirming the store&#39;s existence.</p>
+      
+    </div>
+    <div class="spec-card" id="fr-3">
+      <div class="spec-head">
+        <span class="spec-id">FR-3</span>
+        <span class="tag tag-observed">OBSERVED</span>
+        
+      </div>
+      <p class="spec-statement">The system shall render a live, interactive preview of the generated application inside the project workspace.</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Evidence</span> rendered storefront preview (header, hero, nav, value props) inside the <code>Preview</code> tab.</p>
+      
+    </div>
+    <div class="spec-card" id="fr-4">
+      <div class="spec-head">
+        <span class="spec-id">FR-4</span>
+        <span class="tag tag-observed">OBSERVED</span>
+        
+      </div>
+      <p class="spec-statement">The system shall display an assistant-authored summary of what was built and verified after each generation step, including explicit statements about build success.</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Evidence</span> chat message &quot;...are all working, and the build passes.&quot;</p>
+      
+    </div>
+    <div class="spec-card" id="fr-5">
+      <div class="spec-head">
+        <span class="spec-id">FR-5</span>
+        <span class="tag tag-observed">OBSERVED</span>
+        
+      </div>
+      <p class="spec-statement">The system shall expose the generated project&#39;s full file tree and individual file contents in a read-only code viewer.</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Evidence</span> Code tab file tree and opened <code>package.json</code>, both labeled &quot;Read only.&quot;</p>
+      
+    </div>
+    <div class="spec-card" id="fr-6">
+      <div class="spec-head">
+        <span class="spec-id">FR-6</span>
+        <span class="tag tag-observed">OBSERVED</span>
+        
+      </div>
+      <p class="spec-statement">The system shall record a timestamped, named checkpoint history of build steps, viewable separately from bookmarks.</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Evidence</span> History panel, &quot;History&quot; / &quot;Bookmarks&quot; tabs, one entry &quot;Set up Shopify store — Aug 17, 11:03 PM.&quot;</p>
+      
+    </div>
+    <div class="spec-card" id="fr-7">
+      <div class="spec-head">
+        <span class="spec-id">FR-7</span>
+        <span class="tag tag-observed">OBSERVED</span>
+        
+      </div>
+      <p class="spec-statement">The system shall let a project owner invite collaborators by email and toggle a shareable invite link, with workspace-level default access shown alongside individual invites.</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Evidence</span> Share panel (&quot;Invite by email,&quot; &quot;Invite link disabled,&quot; &quot;General project access... Can edit&quot;).</p>
+      
+    </div>
+    <div class="spec-card" id="fr-8">
+      <div class="spec-head">
+        <span class="spec-id">FR-8</span>
+        <span class="tag tag-observed">OBSERVED</span>
+        <span class="spec-tier-note">(feature&#39;s existence) / INFERRED (exact mechanics of the comment flow, since &quot;Try it&quot; was not clicked)</span>
+      </div>
+      <p class="spec-statement">The system shall let anonymous, unauthenticated visitors leave comments on a shared preview link.</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Evidence</span> onboarding tooltip &quot;Get feedback from anyone... No Lovable account needed to comment.&quot;</p>
+      
+    </div>
+    <div class="spec-card" id="fr-9">
+      <div class="spec-head">
+        <span class="spec-id">FR-9</span>
+        <span class="tag tag-observed">OBSERVED</span>
+        
+      </div>
+      <p class="spec-statement">The system shall track and display per-project analytics (visitors, page views, views per visit, average visit duration, bounce rate, and breakdowns by source/page/device/country), populated only once the project is published.</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Evidence</span> Analytics subview; empty-state copy &quot;Publish your app to start tracking visitors.&quot;</p>
+      
+    </div>
+    <div class="spec-card" id="fr-10">
+      <div class="spec-head">
+        <span class="spec-id">FR-10</span>
+        <span class="tag tag-observed">OBSERVED</span>
+        
+      </div>
+      <p class="spec-statement">The system shall track AI usage per project (credits used, request count, success rate, average duration) with a per-run activity table.</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Evidence</span> AI subview; empty &quot;No activity&quot; state with the table columns visible.</p>
+      
+    </div>
+    <div class="spec-card" id="fr-11">
+      <div class="spec-head">
+        <span class="spec-id">FR-11</span>
+        <span class="tag tag-observed">OBSERVED</span>
+        
+      </div>
+      <p class="spec-statement">The system shall let a workspace admin trigger an on-demand &quot;Basic&quot; or &quot;Deep&quot; security scan of a project and shall automatically flag dependency vulnerabilities with a count.</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Evidence</span> Security subview (&quot;Deep security scan&quot; / &quot;Basic security scan&quot; buttons; &quot;53 packages • 1 known issue&quot;).</p>
+      
+    </div>
+    <div class="spec-card" id="fr-12">
+      <div class="spec-head">
+        <span class="spec-id">FR-12</span>
+        <span class="tag tag-observed">OBSERVED</span>
+        
+      </div>
+      <p class="spec-statement">The system shall auto-generate SEO metadata (title/description) for a project and let the user request edits to it or the site icon conversationally.</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Evidence</span> SEO subview &quot;How your site appears&quot; preview with &quot;Ask Lovable to edit details&quot; / &quot;Ask Lovable to edit icon.&quot;</p>
+      
+    </div>
+    <div class="spec-card" id="fr-13">
+      <div class="spec-head">
+        <span class="spec-id">FR-13</span>
+        <span class="tag tag-observed">OBSERVED</span>
+        
+      </div>
+      <p class="spec-statement">The system shall let a user optionally enable a managed backend (database, authentication, user management, file storage) for a project, or connect an existing Supabase project instead.</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Evidence</span> Cloud subview &quot;Enable more features&quot; panel and &quot;Already have a Supabase project? Connect it here.&quot;</p>
+      
+    </div>
+    <div class="spec-card" id="fr-14">
+      <div class="spec-head">
+        <span class="spec-id">FR-14</span>
+        <span class="tag tag-observed">OBSERVED</span>
+        
+      </div>
+      <p class="spec-statement">The system shall let a user opt a published app into being directly callable by external AI assistants (e.g., ChatGPT, Claude) via an &quot;Enable agent integrations&quot; action.</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Evidence</span> Agent integrations subview copy and CTA.</p>
+      
+    </div>
+    <div class="spec-card" id="fr-15">
+      <div class="spec-head">
+        <span class="spec-id">FR-15</span>
+        <span class="tag tag-observed">OBSERVED</span>
+        
+      </div>
+      <p class="spec-statement">The system shall enforce a workspace-level daily credit allowance (Free plan) that resets at a fixed UTC time, separate from a longer-lived onboarding credit grant.</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Evidence</span> workspace switcher (&quot;Credits 10 left... resets at midnight UTC&quot;) and Plans &amp; credit usage page (&quot;5 credits expire on 17 August 2027&quot; vs. &quot;Daily build credits... 5 left... Resets at midnight UTC&quot;).</p>
+      
+    </div>
+    <div class="spec-card" id="fr-16">
+      <div class="spec-head">
+        <span class="spec-id">FR-16</span>
+        <span class="tag tag-observed">OBSERVED</span>
+        
+      </div>
+      <p class="spec-statement">The system shall let a user opt their own prompts/code/project content out of AI model training from within Account settings.</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Evidence</span> Account settings &quot;AI model training&quot; toggle and disclosure text.</p>
+      
+    </div>
+    <div class="spec-card" id="fr-17">
+      <div class="spec-head">
+        <span class="spec-id">FR-17</span>
+        <span class="tag tag-observed">OBSERVED</span>
+        
+      </div>
+      <p class="spec-statement">The system shall provide a searchable, categorized gallery of pre-built, community-authored project templates that can be used as a starting point.</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Evidence</span> <code>/templates</code> (204 results, category/subcategory filters, search box).</p>
+      
+    </div></div>
+<p>The following three requirements are capability-level requirements per <code>references/requirements-methodology.md</code> — they describe the overall interactive behavior of a Section 2 capability, in addition to (not instead of) the per-step requirements above.</p>
+<div class="spec-list">
+    <div class="spec-card" id="fr-18">
+      <div class="spec-head">
+        <span class="spec-id">FR-18</span>
+        <span class="tag tag-observed">OBSERVED</span>
+        <span class="spec-tier-note">(upgraded 2026-08-29, pass 2 — previously INFERRED)</span>
+      </div>
+      <p class="spec-statement">The system shall let the user iteratively refine an initial free-text build instruction across multiple rounds — through agent-disclosed reasoning, next-step actions, and post-build gap/dependency identification — updating the live preview and offering suggestions specific to the just-identified gap after each round, until the user reaches a satisfactory result.</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Evidence</span> CAP-001 (Section 2); project &quot;Enchanted Attire&quot; chat history and Details/Timeline view, two full rounds directly observed live (E3, E26); User Journey UJ-1 (Section 6.1).</p>
+      
+    </div>
+    <div class="spec-card" id="fr-19">
+      <div class="spec-head">
+        <span class="spec-id">FR-19</span>
+        <span class="tag tag-inferred">INFERRED</span>
+        
+      </div>
+      <p class="spec-statement">The system shall let the user refine a generated app&#39;s visual output directly on the live preview (via sparkle/text/pencil/comment tools) as an alternative to describing the change in chat.</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Evidence</span> CAP-002 (Section 2); preview toolbar icons (E3).</p>
+      
+    </div>
+    <div class="spec-card" id="fr-20">
+      <div class="spec-head">
+        <span class="spec-id">FR-20</span>
+        <span class="tag tag-observed">OBSERVED</span>
+        <span class="spec-tier-note">(upgraded 2026-08-29, pass 3 — previously INFERRED)</span>
+      </div>
+      <p class="spec-statement">The system shall let the user request edits to auto-generated SEO metadata via a structured wizard (keep current / write your own / let the system write it), apply the result across every file that references site metadata, and report exactly what changed.</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Evidence</span> CAP-003 (Section 2); SEO subview (E12); live wizard interaction and resulting file-level change report (E29).</p>
+      
+    </div>
+    <div class="spec-card" id="fr-21">
+      <div class="spec-head">
+        <span class="spec-id">FR-21</span>
+        <span class="tag tag-observed">OBSERVED</span>
+        
+      </div>
+      <p class="spec-statement">The system shall let the user interrupt an in-progress build step via a plain chat message, halt the step cleanly, and explicitly confirm whether any changes were made before the interruption.</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Evidence</span> CAP-006 (Section 2); &quot;stop it&quot; / &quot;Interrupted&quot; / &quot;Stopped — no changes made...&quot; exchange (E27).</p>
+      
+    </div>
+    <div class="spec-card" id="fr-22">
+      <div class="spec-head">
+        <span class="spec-id">FR-22</span>
+        <span class="tag tag-observed">OBSERVED</span>
+        <span class="spec-tier-note">(for Shopify; INFERRED as a general pattern for other integrations)</span>
+      </div>
+      <p class="spec-statement">Before provisioning a third-party integration on the user&#39;s behalf, the system shall present a consent card naming the integration, its benefits, and its reversibility, and shall require an explicit Allow (vs. Skip) action before proceeding.</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Evidence</span> CAP-007 (Section 2); &quot;Create Shopify Store&quot; Skip/Allow card (E26, E28).</p>
+      
+    </div></div>
+<p>CAP-004 and CAP-005 do not have corresponding functional requirements: their mechanics beyond the initial affordance/claim are UNKNOWN, and per <code>references/requirements-methodology.md</code> a requirement should not be written when its classification would be UNKNOWN — see Open Questions (Section 17) instead.</p>
+<h2 id="15-non-functional-requirements">15. Non-Functional Requirements</h2>
+<div class="spec-list">
+    <div class="spec-card" id="nfr-1">
+      <div class="spec-head">
+        <span class="spec-id">NFR-1</span>
+        <span class="tag tag-observed">OBSERVED</span>
+        
+      </div>
+      <p class="spec-statement">The product operates on a credit-metered usage model rather than unlimited usage even on paid tiers, with per-plan monthly credit quantities selectable at purchase time (e.g., &quot;100 monthly credits&quot; shown for both Pro and Business at their respective base prices).</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Evidence</span> <code>/pricing</code> and <code>/settings/billing</code> plan cards.</p>
+      
+    </div>
+    <div class="spec-card" id="nfr-2">
+      <div class="spec-head">
+        <span class="spec-id">NFR-2</span>
+        <span class="tag tag-observed">OBSERVED</span>
+        
+      </div>
+      <p class="spec-statement">Paid tiers progressively unlock organizational/governance controls rather than only &quot;more usage&quot;: Pro adds custom domains, user roles/permissions, and per-member credit limits; Business adds SSO, role-based access, a security center, and design templates; Enterprise adds SCIM directory sync, audit logs, publish/invite restrictions, and scheduled deep security scans across all projects.</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Evidence</span> <code>/pricing</code> feature checklists per tier.</p>
+      
+    </div>
+    <div class="spec-card" id="nfr-3">
+      <div class="spec-head">
+        <span class="spec-id">NFR-3</span>
+        <span class="tag tag-observed">OBSERVED</span>
+        
+      </div>
+      <p class="spec-statement">The platform makes an explicit, differentiated data-training commitment by plan: Business and Enterprise customer data is excluded from model training by default; Free and Pro customers must opt out manually.</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Evidence</span> <code>/security</code> FAQ (&quot;Enterprise and Business plan data is not used to train models... Free and Pro plan subscribers can opt out...&quot;) corroborated by the Account settings toggle.</p>
+      
+    </div>
+    <div class="spec-card" id="nfr-4">
+      <div class="spec-head">
+        <span class="spec-id">NFR-4</span>
+        <span class="tag tag-observed">OBSERVED</span>
+        
+      </div>
+      <p class="spec-statement">The platform runs an automated security scan on every publish (stated duration <del>10–15 seconds) in addition to an on-demand deep scan (</del>3 minutes), and can be configured to block publishing on critical findings.</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Evidence</span> <code>/security</code> page FAQ and body copy. (Also underlies CAP-005, Section 2 — the auto-fix portion of this claim was not independently witnessed.)</p>
+      
+    </div>
+    <div class="spec-card" id="nfr-5">
+      <div class="spec-head">
+        <span class="spec-id">NFR-5</span>
+        <span class="tag tag-observed">OBSERVED</span>
+        <span class="spec-tier-note">(as a stated claim on the public Security page; the underlying certification was not independently verified — this NFR describes what the product claims, not a verified fact)</span>
+      </div>
+      <p class="spec-statement">The platform states support for regional data residency (EU, US, Asia Pacific) and claims SOC 2 and GDPR support.</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Evidence</span> <code>/security</code> FAQ.</p>
+      
+    </div></div>
+<p><strong>No NFR evidence was found for:</strong> page-load performance/latency (the one load-time data point observed was an anomaly — see Edge Cases — not a representative measurement), accessibility (no ARIA/semantic-HTML audit was performed on the target&#39;s own marketing or app UI), or uptime, beyond the existence of a public <code>status.lovable.dev</code> page (link only, not opened).</p>
+<h2 id="16-edge-cases">16. Edge Cases</h2>
+<div class="spec-list">
+    <div class="spec-card" id="ec-1">
+      <div class="spec-head">
+        <span class="spec-id">EC-1</span>
+        <span class="tag tag-observed">OBSERVED</span>
+        <span class="spec-tier-note">(this exact boundary was witnessed, not just inferred)</span>
+      </div>
+      <p class="spec-statement">What happens when a generated project&#39;s Shopify catalog has zero products?</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Related to</span> FR-2, FR-3</p>
+      <p class="spec-note"><span class="spec-evidence-label">Rationale</span> the live preview rendered a &quot;No products yet&quot; home-page state, and the assistant proactively asked the user for product details rather than leaving the storefront silently broken.</p>
+    </div>
+    <div class="spec-card" id="ec-2">
+      <div class="spec-head">
+        <span class="spec-id">EC-2</span>
+        <span class="tag tag-observed">OBSERVED</span>
+        
+      </div>
+      <p class="spec-statement">What happens on first navigation into a project workspace before its preview/file bundle has finished initializing?</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Related to</span> FR-3, FR-5</p>
+      <p class="spec-note"><span class="spec-evidence-label">Rationale</span> the Preview and Files panels rendered completely blank (no skeleton, no error, no content) for over 5 seconds and did not self-recover via the in-app refresh control; only a full browser-level page reload resolved it. This is a reliability gap between &quot;the UI shell has loaded&quot; and &quot;the underlying preview/file service is ready,&quot; with no loading indicator bridging the two observed states.</p>
+    </div>
+    <div class="spec-card" id="ec-3">
+      <div class="spec-head">
+        <span class="spec-id">EC-3</span>
+        <span class="tag tag-observed">OBSERVED</span>
+        
+      </div>
+      <p class="spec-statement">What happens when a user&#39;s Free-plan daily/credit allowance is inspected from two different entry points in quick succession?</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Related to</span> FR-15</p>
+      <p class="spec-note"><span class="spec-evidence-label">Rationale</span> the workspace switcher reported &quot;Credits: 10 left&quot; while the Plans &amp; credit usage page, opened shortly after, reported &quot;Daily build credits: 5 left&quot; — either these are two genuinely distinct counters that happen to share very similar labels, or one view was stale. This was not resolved within this session (see Gap Analysis) but is exactly the kind of boundary condition users are likely to notice and be confused by.</p>
+    </div>
+    <div class="spec-card" id="ec-4">
+      <div class="spec-head">
+        <span class="spec-id">EC-4</span>
+        <span class="tag tag-observed">OBSERVED</span>
+        
+      </div>
+      <p class="spec-statement">What happens when a project has only one route/page?</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Related to</span> FR-3 (route picker)</p>
+      <p class="spec-note"><span class="spec-evidence-label">Rationale</span> the page/route selector still renders as a searchable dropdown even with a single entry (&quot;/&quot;), rather than being hidden — implying the same UI is shared with multi-page projects.</p>
+    </div>
+    <div class="spec-card" id="ec-5">
+      <div class="spec-head">
+        <span class="spec-id">EC-5</span>
+        <span class="tag tag-observed">OBSERVED</span>
+        
+      </div>
+      <p class="spec-statement">What happens when a settings URL doesn&#39;t exist?</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Related to</span> Section 8 (UI States)</p>
+      <p class="spec-note"><span class="spec-evidence-label">Rationale</span> <code>/settings/profile</code> (guessed by this investigation, not a real in-product link) returned a clean 404 rather than an application error, suggesting a global catch-all route rather than per-section 404 handling.</p>
+    </div></div>
+<h2 id="17-open-questions">17. Open Questions</h2>
+<ol>
+<li>What does the logged-out sign-up/login screen (<code>/auth</code>) actually offer — email/password, Google, GitHub, magic link? (Requires either a logged-out browser session or the user&#39;s explicit sign-out authorization to observe safely.)</li>
+<li>Is the credit-count discrepancy in EC-3 a real product inconsistency (two different counters mislabeled similarly) or a transient UI staleness issue? (Requires repeated, timed observation of both surfaces.)</li>
+<li>What exactly happens when &quot;Publish&quot; is pressed — does it require confirmation, does it immediately go live on a subdomain, and what does the resulting public URL look like? (Requires authorization to actually publish a project, which was not sought in this session. Also relevant to CAP-005 — see item 12.)</li>
+<li>What does the &quot;Git&quot; settings panel expose — is it a one-way export, a two-way sync, or full repo hosting? (Panel was visible but not opened.)</li>
+<li>What is contained in <code>.lovable/project.json</code> and <code>AGENTS.md</code> in a generated project, and what is <code>AGENTS.md</code>&#39;s actual purpose (agent instructions consumed by Lovable&#39;s own runtime, or a convention meant for third-party coding agents that later clone the repo)? (Would require opening those specific files in the Code tab, which was not done.)</li>
+<li>What does the direct-manipulation preview toolbar (sparkle/text/pencil/comment icons, CAP-002) actually do when used — do &quot;text&quot; and &quot;pencil&quot; edits get applied as normal chat-driven diffs, or through a separate mechanism? <strong>Attempted with authorization 2026-08-29 (pass 3), inconclusive:</strong> four clean attempts across two tool modes produced no observable effect via browser automation, most likely because the preview renders in a cross-origin iframe that didn&#39;t respond to this session&#39;s synthetic pointer events — this remains genuinely open and would need either a human tester with a real mouse, or a different automation approach (e.g. dispatching events from inside the iframe&#39;s own context rather than the parent page).</li>
+<li>What do the Business-gated &quot;Groups&quot; and &quot;Identity&quot; settings screens, and the Enterprise-gated &quot;Build secrets&quot; and &quot;Managed registry&quot; screens, actually contain? (Gated by plan; only their existence and label were observed.)</li>
+<li>Does deleting a single project behave like workspace deletion (60-day recoverable) or is it immediate/permanent? (No delete-project control was located.)</li>
+<li><del>Do the suggestion chips/next steps offered in round 2+ of the build loop (CAP-001) genuinely adapt to what was just built, or are they a fixed, generic set regardless of project state?</del> <strong>RESOLVED 2026-08-29 (pass 2):</strong> yes — round 2&#39;s chips (&quot;Enable OTP SMS delivery,&quot; &quot;Add OTP resend UI,&quot; &quot;Implement password reset&quot;) were directly observed tracking the specific OTP-delivery caveat the system had just raised, and differ from round 1&#39;s chips (&quot;Add costume catalog,&quot; &quot;Build checkout flow&quot;). See CAP-001, Section 2.</li>
+<li><del>What happens when a user submits a conversational SEO edit request or uses the &quot;Research SEO with Lovable&quot; Q&amp;A panel (CAP-003)?</del> <strong>RESOLVED 2026-08-29 (pass 3), with explicit user authorization:</strong> submitting the &quot;Ask Lovable to edit details&quot; wizard produces a real, applied change — a new title and meta description across three files, <code>og:</code> tags updated to match, and an explicit change report — plus new suggestion chips following from the change. See CAP-003, Section 2. (The separate &quot;Research SEO with Lovable&quot; Q&amp;A panel itself — asking a competitive/keyword research question rather than requesting an edit — was not exercised and remains open.)</li>
+<li>What does the &quot;Reuse work from other projects&quot; reference picker (CAP-004) actually pull in, and how is it incorporated into the build? (Only its label and placement were observed; a hover tooltip surfaced a &quot;Read more&quot; link but not the underlying explanation text.)</li>
+<li>Does the claimed on-publish security auto-fix (CAP-005) actually execute and materially change findings, or is manual &quot;Deep scan&quot; review the only mechanism that&#39;s real? (Requires authorization to actually publish.)</li>
+<li>Does the consent-gated setup pattern observed for Shopify (CAP-007) also apply to other integrations — Cloud/Supabase, GitHub, agent/MCP integrations — or is Shopify a special case because it&#39;s a real external account being connected? (Only the Shopify instance of this pattern was observed.)</li>
+<li>Can an interrupted step (CAP-006) be resumed exactly where it left off, or does &quot;pick it back up&quot; just mean re-describing the same instruction? (The interrupted step in the observed transcript was not resumed — the user redirected instead.)</li>
+</ol>
+<h2 id="18-mvp-candidate">18. MVP Candidate</h2>
+<p>Based strictly on what was observed to already work end-to-end for the &quot;Enchanted Attire&quot; project, the smallest coherent slice that delivers the product&#39;s core value proposition is:</p>
+<ol>
+<li><strong>Prompt-to-app generation</strong> (FR-1) — the single entry point that defines the product category.</li>
+<li><strong>Automatic backend selection for common needs</strong> (FR-2, generalized) — at minimum, the observed Shopify auto-provisioning for commerce intents; this is what turns &quot;generates a static mockup&quot; into &quot;generates a working product.&quot;</li>
+<li><strong>Live preview</strong> (FR-3) so the user can see the result of (1) and (2) without leaving the chat.</li>
+<li><strong>Conversational iteration with build-status transparency</strong> (FR-4, FR-18) — the assistant explicitly confirming what was built and what&#39;s still missing, which is what makes the loop trustworthy enough to continue using. This is CAP-001 (Section 2); the loop is the load-bearing part of the MVP, not just the individual FRs that compose it.</li>
+<li><strong>Publish</strong> (referenced but not directly exercised) — without a real, reachable output URL, the rest of the loop has no endpoint; this is the one FR-adjacent capability that had to be treated as INFERRED rather than fully OBSERVED, but every other panel (Analytics&#39; empty state, the Shopify &quot;Claim store&quot; flow) treats it as the load-bearing final step, so it belongs in any MVP definition.</li>
+</ol>
+<p>Everything else observed — analytics, AI-usage accounting, security scanning, SEO tooling, agent/MCP integrations, template gallery, workspaces/collaboration, credit-tier billing — reads as monetization, retention, or trust/scale infrastructure layered on top of that core loop, not part of the minimum loop itself. CAP-002 through CAP-005 (Section 2) are refinements/extensions of the same interaction pattern rather than independently load-bearing for the MVP.</p>
+<h2 id="19-gap-analysis">19. Gap Analysis</h2>
+<ul>
+<li><strong>Logged-out experience is entirely unverified.</strong> Every marketing page was viewed through an authenticated session hitting public URLs directly; the exact copy/CTAs a first-time, logged-out visitor sees (especially on <code>/</code> and <code>/auth</code>) could not be confirmed and is marked UNKNOWN or INFERRED throughout.</li>
+<li><strong>No generation was actually performed by this investigation.</strong> All evidence about the prompt-to-app loop comes from reading a pre-existing project&#39;s persisted chat history, not from submitting a new prompt — deliberately, to avoid consuming the account&#39;s limited credits without separate authorization. This means the <em>existence</em> of the flow (CAP-001) is OBSERVED-via-transcript but <em>this session&#39;s own</em> interaction with it is not, and rounds beyond the first are Inferred rather than Observed for the same reason.</li>
+<li><strong>Numeric inconsistency in credit reporting (EC-3) was not resolved</strong> — left as an open question rather than resolved by further probing, since repeated reloading/probing of billing data felt outside a lightweight reverse-engineering pass.</li>
+<li><strong>Several plan-gated settings panels (Groups, Identity, Build secrets, Managed registry) and the workspace-level Connectors/Search sidebar items were not opened</strong>, purely due to session scope/time, not because they were inaccessible — noted as Open Questions rather than assumed.</li>
+<li><strong>No accessibility or performance audit was performed</strong> — this report does not claim WCAG compliance, load-time benchmarks, or Lighthouse-style scores one way or the other.</li>
+<li><strong>Security/compliance claims (SOC 2, GDPR, data residency) are reported as claims the product makes about itself</strong>, not independently verified facts — this distinction is preserved throughout Section 15.</li>
+<li><strong>Update history for this section:</strong> pass 1 (2026-08-29 morning) was a re-synthesis of the original 2026-08-26 evidence, with no new browsing — CAP-001 through CAP-005 were all Inferred/Assumed at that point, each resting on a single observed affordance or a reconstructed transcript rather than a walked loop. Pass 2 (2026-08-29, later) went back to the live product specifically to close that gap for the highest-value capability: it re-opened the same &quot;Enchanted Attire&quot; project and read its persisted history directly (no new prompts submitted, no credits spent), which upgraded CAP-001 to Observed with two full rounds of evidence, resolved Open Question 9, corrected FR-2&#39;s phrasing (the Shopify provisioning has an explicit consent gate, not silent autonomy), and surfaced two capabilities — CAP-006 (interruption) and CAP-007 (consent-gated setup) — that weren&#39;t visible in the original static evidence at all.</li>
+<li><strong>What&#39;s still not live-verified.</strong> CAP-004 (cross-project reuse) and CAP-005 (security auto-fix on publish) remain Inferred/Assumed. CAP-004 still rests on a single observed affordance (label and placement only) — exercising it wasn&#39;t in scope for pass 3. CAP-005 rests only on a public marketing claim — exercising it would require actually publishing, which remains outside this investigation&#39;s authorization. Both are listed in Open Questions (11, 12) rather than upgraded.</li>
+<li><strong>What pass 3 changed.</strong> With the user&#39;s explicit authorization (2026-08-29), CAP-002 and CAP-003 moved from &quot;not attempted, to avoid unauthorized changes&quot; to &quot;actively tested.&quot; CAP-003 (conversational SEO refinement) is now Observed with high confidence, including a real applied change to the user&#39;s live project (disclosed above and in CAP-003, Section 2) — this is the only point in the entire investigation where new content was generated or an existing project was modified by this investigation&#39;s own actions, and it happened only after explicit authorization. CAP-002 (direct-manipulation preview editing) was genuinely tested — four clean attempts across two tool modes — but remained inconclusive, most likely due to the preview rendering in a cross-origin iframe that didn&#39;t respond to this session&#39;s synthetic pointer events; its classification is unchanged from before, but is now backed by a documented negative test rather than an untested assumption. This is a meaningful distinction: &quot;not exercised&quot; and &quot;exercised but inconclusive&quot; carry different evidentiary weight, and the report now says which applies to which capability.</li>
+<li><strong>Capability-discovery checkpoint result (pass 1):</strong> running the checkpoint from <code>references/product-capability-discovery.md</code> against the original evidence surfaced one capability that existed in the evidence but had not previously been named explicitly — the prompt→build→iterate loop, previously described only piecemeal across FR-1, FR-2, FR-4, and the original journey&#39;s steps 1–5, with no single sentence in the prior version of this report stating &quot;this is a distinct, interpret-suggest-refine capability.&quot; Re-reading the same evidence against the checklist&#39;s specific prompts (&quot;did I identify interactive/iterative behaviors,&quot; &quot;did I identify suggestion/recommendation mechanisms,&quot; &quot;is any important capability buried inside a generic use-case description&quot;) also surfaced four smaller capabilities (CAP-002–CAP-005) that were previously visible only as isolated feature bullets (preview toolbar, SEO Q&amp;A panel, cross-project reference picker, security auto-fix claim).</li>
+</ul>
+<h2 id="20-evidence-ledger">20. Evidence Ledger</h2>
+<div class="table-wrap"><table><thead><tr>
+<th>Ref</th>
+<th>Source</th>
+<th>Used in</th>
+</tr>
+</thead><tbody><tr>
+<td>E1</td>
+<td><code>https://lovable.dev/dashboard</code> (screenshot + text)</td>
+<td>§4.2, §5, §7, §11</td>
+</tr>
+<tr>
+<td>E2</td>
+<td><code>https://lovable.dev/dashboard/projects</code> (screenshot, loading + loaded states)</td>
+<td>§4.2, §5, §8</td>
+</tr>
+<tr>
+<td>E3</td>
+<td>Project workspace <code>https://lovable.dev/projects/d7ddc303-7ecc-4490-a4d9-504bef6ba799</code> (chat history, screenshots, accessibility tree)</td>
+<td>§2, §5, §6.1, §7, §8, §12, §14, §16</td>
+</tr>
+<tr>
+<td>E4</td>
+<td>Same project, <code>?view=codeEditor</code> (file tree, <code>package.json</code> contents)</td>
+<td>§5, §13, §14, Open Questions</td>
+</tr>
+<tr>
+<td>E5</td>
+<td>Same project, <code>?view=more&amp;subview=analytics</code></td>
+<td>§5, §8, §13, §14</td>
+</tr>
+<tr>
+<td>E6</td>
+<td>Same project, <code>?view=more&amp;subview=cloud</code></td>
+<td>§5, §10, §14</td>
+</tr>
+<tr>
+<td>E7</td>
+<td>Same project, <code>?view=more&amp;subview=ai</code></td>
+<td>§5, §8, §14</td>
+</tr>
+<tr>
+<td>E8</td>
+<td>Same project, <code>?view=more&amp;subview=mcp</code> (&quot;Agent integrations&quot;)</td>
+<td>§5, §10, §14</td>
+</tr>
+<tr>
+<td>E9</td>
+<td>Same project, <code>?view=more&amp;subview=payments</code></td>
+<td>§5, §10, §12, §14</td>
+</tr>
+<tr>
+<td>E10</td>
+<td>Same project, <code>?view=more&amp;subview=connectors</code></td>
+<td>§5, §8</td>
+</tr>
+<tr>
+<td>E11</td>
+<td>Same project, <code>?view=more&amp;subview=security</code></td>
+<td>§5, §14</td>
+</tr>
+<tr>
+<td>E12</td>
+<td>Same project, <code>?view=more&amp;subview=seo</code></td>
+<td>§2, §5, §14</td>
+</tr>
+<tr>
+<td>E13</td>
+<td>Project History panel (clock icon)</td>
+<td>§5, §12</td>
+</tr>
+<tr>
+<td>E14</td>
+<td>Project Share panel</td>
+<td>§5, §7</td>
+</tr>
+<tr>
+<td>E15</td>
+<td>Workspace switcher dropdown (screenshot + zoom)</td>
+<td>§11, §13, §16</td>
+</tr>
+<tr>
+<td>E16</td>
+<td><code>https://lovable.dev/settings/workspace</code></td>
+<td>§11</td>
+</tr>
+<tr>
+<td>E17</td>
+<td><code>https://lovable.dev/settings/billing</code> (Plans &amp; credit usage)</td>
+<td>§11, §13, §14, §15, §16</td>
+</tr>
+<tr>
+<td>E18</td>
+<td><code>https://lovable.dev/settings/account</code></td>
+<td>§5, §10, §11, §14, §15</td>
+</tr>
+<tr>
+<td>E19</td>
+<td><code>https://lovable.dev/settings/profile</code> (404 page)</td>
+<td>§8, §16</td>
+</tr>
+<tr>
+<td>E20</td>
+<td><code>https://lovable.dev/home</code> (public marketing homepage)</td>
+<td>§1, §4.1, §6.1</td>
+</tr>
+<tr>
+<td>E21</td>
+<td><code>https://lovable.dev/pricing</code></td>
+<td>§4.1, §14, §15</td>
+</tr>
+<tr>
+<td>E22</td>
+<td><code>https://lovable.dev/templates</code></td>
+<td>§4.1, §5</td>
+</tr>
+<tr>
+<td>E23</td>
+<td><code>https://lovable.dev/security</code></td>
+<td>§2, §10, §14, §15</td>
+</tr>
+<tr>
+<td>E24</td>
+<td>Footer + mega-menu accessibility-tree dump from <code>/pricing</code></td>
+<td>§4.1</td>
+</tr>
+<tr>
+<td>E25</td>
+<td><code>https://lovable.dev/robots.txt</code></td>
+<td>§4.1, §9</td>
+</tr>
+<tr>
+<td>E26</td>
+<td>Project &quot;Enchanted Attire&quot; Details/Timeline view (read-only history), browsed live 2026-08-29 pass 2</td>
+<td>§2, §14, §19</td>
+</tr>
+<tr>
+<td>E27</td>
+<td>Project chat, &quot;stop it&quot; / &quot;Interrupted&quot; / &quot;Stopped — no changes made...&quot; exchange, browsed live 2026-08-29 pass 2</td>
+<td>§2, §5, §14</td>
+</tr>
+<tr>
+<td>E28</td>
+<td>Project Details/Timeline view, &quot;Create Shopify Store&quot; Skip/Allow consent card, browsed live 2026-08-29 pass 2</td>
+<td>§2, §14</td>
+</tr>
+<tr>
+<td>E29</td>
+<td>SEO subview, &quot;Ask Lovable to edit details&quot; wizard exercised live with explicit user authorization 2026-08-29 pass 3 — submitted answers, resulting build trace, change report, and updated &quot;How your site appears&quot; preview</td>
+<td>§2, §13, §14, §17</td>
+</tr>
+<tr>
+<td>E30</td>
+<td>Preview toolbar &quot;Select elements&quot; / &quot;Edit text inline&quot; modes, four live interaction attempts with explicit user authorization 2026-08-29 pass 3, inconclusive</td>
+<td>§2, §17</td>
+</tr>
+</tbody></table></div>
+<h2 id="21-hypothetical-backend-requirements-speculative-not-observed">21. Hypothetical Backend Requirements (Speculative — Not Observed)</h2>
+<p class="hbr-caveat"><strong>This section departs from the report&#39;s evidence discipline by design.</strong> Everything in Sections 14–16 is tied to an evidence tier because it describes what was witnessed through the product&#39;s own UI; nothing about the server side was inspected in this investigation (no implementation code, infrastructure, or backend APIs were accessed — see Section 3, Scope &amp; Method). The items below are a solution architect&#39;s engineering inferences about backend systems that would plausibly need to exist to produce the <em>frontend</em> behavior actually observed. They are added at the user&#39;s request to make the shape of the likely backend explicit. None of them carry an evidence tier, none should be treated as verified, and none should be cited alongside the Observed/Inferred/Assumed/Unknown requirements in Sections 14–16 as if they had the same standing. Each item states its statement, then the specific observed behavior it&#39;s inferred from.</p>
+<div class="spec-list hbr">
+    <div class="spec-card hbr-card" id="hbr-1">
+      <div class="spec-head">
+        <span class="spec-id hbr-id">HBR-1</span>
+        <span class="tag tag-speculative">Speculative</span>
+      </div>
+      <p class="spec-statement">The system likely runs a stateful, multi-step LLM agent loop per build step — one that plans, selects a tool (write a file, install a package, provision a backend, trigger a build), executes it, and observes the result before continuing — rather than a single prompt-to-code call.</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Inferred from</span> the visible &quot;Thought for Ns&quot; reasoning disclosure, the plan → consent → build → report sequence (CAP-001), and clean mid-step interruption (CAP-006), all of which imply pauseable, observable steps rather than one opaque generation call.</p>
+    </div>
+    <div class="spec-card hbr-card" id="hbr-2">
+      <div class="spec-head">
+        <span class="spec-id hbr-id">HBR-2</span>
+        <span class="tag tag-speculative">Speculative</span>
+      </div>
+      <p class="spec-statement">Each project likely runs in an isolated, disposable compute environment (a container or micro-VM) that installs dependencies, runs a build/dev server, and serves the live preview.</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Inferred from</span> the preview being served from a dedicated per-project subdomain (<code>id-preview--&lt;uuid&gt;.lovable.app</code>) distinct from the published app, and build pass/fail being reported synchronously after each change.</p>
+    </div>
+    <div class="spec-card hbr-card" id="hbr-3">
+      <div class="spec-head">
+        <span class="spec-id hbr-id">HBR-3</span>
+        <span class="tag tag-speculative">Speculative</span>
+      </div>
+      <p class="spec-statement">Generated code is likely committed to a per-project git repository, with the agent producing diffs applied as commits, and checkpoints in the History panel corresponding to commit references.</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Inferred from</span> the workspace&#39;s branch selector reading &quot;main,&quot; a timestamped checkpoint history, and change reports naming exact files touched (<code>__root.tsx</code>, <code>index.tsx</code>, <code>product.$handle.tsx</code>) — behavior consistent with programmatic git operations, not opaque state snapshots.</p>
+    </div>
+    <div class="spec-card hbr-card" id="hbr-4">
+      <div class="spec-head">
+        <span class="spec-id hbr-id">HBR-4</span>
+        <span class="tag tag-speculative">Speculative</span>
+      </div>
+      <p class="spec-statement">Build compilation, security scans (~10–15s on publish, ~3min for a Deep scan), and third-party provisioning (e.g., Shopify store creation) likely run as queued background jobs with status polling or streaming back to the chat UI, rather than blocking a single request.</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Inferred from</span> these operations&#39; observed variable durations and asynchronous progress states (e.g., &quot;Scanning your project... Usually under a minute&quot;).</p>
+    </div>
+    <div class="spec-card hbr-card" id="hbr-5">
+      <div class="spec-head">
+        <span class="spec-id hbr-id">HBR-5</span>
+        <span class="tag tag-speculative">Speculative</span>
+      </div>
+      <p class="spec-statement">A per-account, per-project credit ledger likely debits usage at the point each billable action completes, supporting the two independently tracked pools observed (a banked/expiring grant and a daily-resetting allowance).</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Inferred from</span> a single SEO edit debiting exactly 0.80 credits, visible in near real time, and per-project 30-day usage attributed with two-decimal precision — implying fine-grained, action-level cost accounting rather than flat per-request billing.</p>
+    </div>
+    <div class="spec-card hbr-card" id="hbr-6">
+      <div class="spec-head">
+        <span class="spec-id hbr-id">HBR-6</span>
+        <span class="tag tag-speculative">Speculative</span>
+      </div>
+      <p class="spec-statement">A backend service likely brokers OAuth or partner-API credentials to provision and manage Shopify stores and Supabase projects on the user&#39;s behalf, storing scoped tokens per project rather than performing these calls client-side.</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Inferred from</span> Shopify stores being auto-created and later transferable via &quot;Claim store,&quot; and Supabase projects being either auto-provisioned or connected by the user — both requiring server-side integration with those platforms&#39; account/resource-creation APIs.</p>
+    </div>
+    <div class="spec-card hbr-card" id="hbr-7">
+      <div class="spec-head">
+        <span class="spec-id hbr-id">HBR-7</span>
+        <span class="tag tag-speculative">Speculative</span>
+      </div>
+      <p class="spec-statement">The agent likely maintains a searchable index (semantic or structural) of each project&#39;s current file tree, so it can locate and modify the right files without re-reading the whole codebase on every turn.</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Inferred from</span> the SEO edit&#39;s change report naming three specific files it updated by function (root layout, homepage, product page) — consistent with an agent that can query &quot;where is site metadata defined&quot; rather than one working from a fixed, hardcoded file list.</p>
+    </div>
+    <div class="spec-card hbr-card" id="hbr-8">
+      <div class="spec-head">
+        <span class="spec-id hbr-id">HBR-8</span>
+        <span class="tag tag-speculative">Speculative</span>
+      </div>
+      <p class="spec-statement">Security scanning likely calls out to, or maintains a synced copy of, a package-vulnerability database (an OSV/NVD-style feed) to produce findings like &quot;53 packages • 1 known issue,&quot; plus a rules engine capable of proposing safe version bumps for the claimed auto-fix behavior (CAP-005).</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Inferred from</span> the specificity and immediacy of the vulnerability count, and the public claim that non-breaking findings can be auto-fixed.</p>
+    </div>
+    <div class="spec-card hbr-card" id="hbr-9">
+      <div class="spec-head">
+        <span class="spec-id hbr-id">HBR-9</span>
+        <span class="tag tag-speculative">Speculative</span>
+      </div>
+      <p class="spec-statement">Beyond git commits (HBR-3), a separate metadata store likely records each checkpoint&#39;s label, timestamp, and any associated integration side-effects (e.g., &quot;Enabled Shopify&quot;) shown in the Details/Timeline view.</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Inferred from</span> the Timeline view surfacing structured domain events (consent decisions, named checkpoints) that read as first-class records, not just a derived git log.</p>
+    </div>
+    <div class="spec-card hbr-card" id="hbr-10">
+      <div class="spec-head">
+        <span class="spec-id hbr-id">HBR-10</span>
+        <span class="tag tag-speculative">Speculative</span>
+      </div>
+      <p class="spec-statement">Access to projects and settings is likely enforced by a workspace-scoped authorization/role system, distinct from account-level authentication, governing per-collaborator project roles (&quot;Can edit&quot;), workspace admin actions, and plan-gated feature visibility.</p>
+      <p class="spec-evidence"><span class="spec-evidence-label">Inferred from</span> plan-gated settings panels rendering as visible-but-locked rather than hidden, and per-collaborator &quot;Can edit&quot; roles alongside a workspace Owner role — implying authorization is evaluated per resource, not just per logged-in user.</p>
+    </div></div>
+<hr>
+<p><em>Report generated by the <code>product-reverse-engineer</code> skill. Scope, safety boundaries, and evidence discipline as defined in <code>SKILL.md</code>. Updated 2026-08-29 (pass 1) to apply the skill&#39;s capability-discovery methodology (Section 2 and related cross-references) via re-synthesis of existing evidence, no new browsing. Updated 2026-08-29 (pass 2) with live browser re-verification of CAP-001, adding CAP-006 and CAP-007 — no new prompts submitted, no credits spent. Updated 2026-08-29 (pass 3), with the user&#39;s explicit authorization, by actively testing CAP-002 (inconclusive) and CAP-003 (confirmed — one real, disclosed edit made to the live project, 0.80 credits spent).</em></p>
+      </div>
+      <footer class="colophon">
+        Report generated by the <code>product-reverse-engineer</code> skill. Scope, safety boundaries, and evidence discipline as defined in <code>SKILL.md</code>. Three research passes on 2026-08-26 and 2026-08-29; see the revision timeline above and Section 19 (Gap Analysis) for what changed at each pass.
+      </footer>
+    </main>
+  </div>
+</div>
+
+<script>
+(function(){
+  try{
+    var links = Array.prototype.slice.call(document.querySelectorAll('.toc a[data-toc-link]'));
+    var idToLink = {};
+    links.forEach(function(a){ idToLink[a.getAttribute('href').slice(1)] = a; });
+    var ids = ["1-executive-summary","2-key-product-capabilities","cap-001-interactive-requirement-refinement-prompt-build-iterate-loop","cap-002-direct-manipulation-preview-editing","cap-003-conversational-seo-metadata-refinement","cap-004-contextual-cross-project-work-reuse","cap-005-automated-security-remediation-on-publish","cap-006-mid-task-interruption-steerability","cap-007-consent-gated-integration-setup","3-scope-method","4-site-map-navigation","5-feature-inventory","6-user-journeys","7-forms-actions","8-ui-states","9-authentication-boundaries","10-integrations","11-settings","12-lifecycle-project","13-observable-data-behavior","14-functional-requirements","15-non-functional-requirements","16-edge-cases","17-open-questions","18-mvp-candidate","19-gap-analysis","20-evidence-ledger","21-hypothetical-backend-requirements-speculative-not-observed"];
+    var targets = ids.map(function(id){ return document.getElementById(id); }).filter(Boolean);
+    if(!('IntersectionObserver' in window) || !targets.length) return;
+    var current = null;
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          if(current) current.classList.remove('active');
+          var link = idToLink[entry.target.id];
+          if(link){ link.classList.add('active'); current = link; }
+        }
+      });
+    }, { rootMargin: '-10% 0px -75% 0px', threshold: 0 });
+    targets.forEach(function(t){ io.observe(t); });
+  }catch(e){}
+})();
+</script>
